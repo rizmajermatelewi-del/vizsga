@@ -2,5 +2,8 @@
 session_start();
 session_unset();
 session_destroy();
-header("Location: ./login.php");
+
+// Visszaküldjük a főoldalra
+header("Location: index.php");
 exit;
+?>

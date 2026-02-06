@@ -114,7 +114,7 @@ $services = $stmt->fetchAll();
 </div>
 <header class="hero-zen reveal">
     <div class="hero-content text-center">
-        <span class="info-label text-white opacity-75">ÜDVÖZÖLJÜK A CSENDBEN</span>
+        <h1 class="display-4 text-white">ÜDVÖZÖLJÜK A CSENDBEN</h1>
         <h1 class="display-2 brand text-white my-4">Találja meg belső békéjét</h1>
         <p class="lead text-white opacity-75 mb-5 px-3">Japán rituálék és skandináv minimalizmus a teljes testi-lelki megújulásért.</p>
         <a href="#booking" class="btn-zen-light">IDŐPONTOT FOGLALOK</a>
@@ -220,12 +220,13 @@ $services = $stmt->fetchAll();
     <div class="container py-5 reveal">
         <div class="row g-5 align-items-center">
             <div class="col-lg-6">
-                <div id="voucher-preview" class="p-5 bg-white border text-center shadow-sm">
-                    <h3 class="brand mb-4">AB MASSZÁZS</h3>
-                    <h2 id="p-amount" class="my-5">10 000 Ft</h2>
+                <div id="voucher-preview" class="p-5 bg-white border text-center shadow-sm" style="border-radius: 15px;">
+                    <h3 class="brand mb-4" style="letter-spacing: 5px;">AB MASSZÁZS</h3>
+                    <h2 id="p-amount" class="my-5" style="font-weight: 300;">10 000 Ft</h2>
                     <p id="p-name" class="text-uppercase small fw-bold opacity-50" style="letter-spacing: 4px;">VENDÉGÜNK NEVE</p>
                 </div>
             </div>
+
             <div class="col-lg-5 offset-lg-1">
                 <span class="info-label">AJÁNDÉK</span>
                 <h2 class="brand mb-4">Adjon élményt szeretteinek</h2>
@@ -234,9 +235,10 @@ $services = $stmt->fetchAll();
                     <form action="vouchers.php" method="POST">
                         <div class="row g-3">
                             <div class="col-12 mb-2">
-                                <label class="small text-muted mb-1">Vásárló (Automatikusan kitöltve):</label>
-                                <input type="text" name="v_buyer_name" class="form-control bg-light" 
-                                       value="<?= htmlspecialchars($_SESSION['username'] ?? 'Bejelentkezett Felhasználó') ?>" readonly>
+                                <label class="small text-muted mb-1">Vásárló:</label>
+                                <input type="text" name="v_buyer_name" class="form-control bg-transparent border-0 p-0 fw-bold" 
+                                       style="font-size: 1.1rem; color: var(--j-dark);"
+                                       value="<?= htmlspecialchars($_SESSION['user_name'] ?? 'Vendégünk') ?>" readonly>
                             </div>
                             
                             <div class="col-12">
@@ -247,7 +249,7 @@ $services = $stmt->fetchAll();
                                 <input type="email" name="v_buyer_email" class="form-control" placeholder="AZ ÖN EMAIL CÍME" required>
                             </div>
                             <div class="col-md-6">
-                                <input type="tel" name="v_buyer_phone" class="form-control" placeholder="TELEFONSZÁM" required>
+                                <input type="tel" name="v_buyer_phone" id="v_buyer_phone" class="form-control" placeholder="TELEFONSZÁM" value="+36 " required maxlength="13">
                             </div>
                             
                             <div class="col-12">
@@ -270,6 +272,19 @@ $services = $stmt->fetchAll();
         </div>
     </div>
 </section>
+
+<script>
+    // Telefonszám formázó az utalványhoz is
+    const vPhone = document.getElementById('v_buyer_phone');
+    if(vPhone) {
+        vPhone.addEventListener('input', function(e) {
+            let v = e.target.value.replace(/[^\d+]/g, '');
+            if (!v.startsWith('+36')) v = '+36 ';
+            if (v.length > 13) v = v.substring(0, 13);
+            e.target.value = v;
+        });
+    }
+</script>
 
 <section id="reviews" class="py-5" style="background-color: #fdfcfb;">
     <div class="container">
@@ -328,7 +343,7 @@ $services = $stmt->fetchAll();
                 </div>
                 <form action="booking.php" method="POST" class="row g-4">
                     <div class="col-md-6"><input type="text" name="customer_name" class="form-control" placeholder="NÉV" required></div>
-                    <div class="col-md-6"><input type="text" name="phone" class="form-control" placeholder="TELEFON" required></div>
+                    <div class="col-md-6"><input type="text" name="tel" class="form-control" placeholder="TELEFON" required></div>
                     <div class="col-12">
                         <select name="service_id" class="form-select" required>
                             <option value="" disabled selected>VÁLASSZON KEZELÉST...</option>
@@ -445,56 +460,58 @@ $services = $stmt->fetchAll();
                     </ul>
 
                     <div class="tab-content">
-                        <div class="tab-pane fade show active" id="tab-contact">
-                            <form action="contact.php" method="POST" class="row g-4">
-                                <div class="col-md-6">
-                                    <input type="text" name="c_name" class="zen-input" placeholder="Az Ön neve" required>
-                                </div>
-                                <div class="col-md-6">
-                                    <input type="email" name="c_email" class="zen-input" placeholder="Email cím" required>
-                                </div>
-                                <div class="col-12">
-                                    <input type="tel" name="c_phone" class="zen-input" placeholder="Telefonszám" required>
-                                </div>
-                                <div class="col-12">
-                                    <textarea name="c_message" rows="4" class="zen-input" placeholder="Miben segíthetünk?" required></textarea>
-                                </div>
-                                <div class="col-12 text-center mt-4">
-                                    <button type="submit" class="btn-zen-gold">ÜZENET KÜLDÉSE</button>
-                                </div>
-                            </form>
-                        </div>
+    <div class="tab-pane fade show active" id="tab-contact">
+        <form action="contact.php" method="POST" class="row g-4">
+            <div class="col-md-6">
+                <input type="text" name="c_name" class="zen-input" placeholder="Az Ön neve" required>
+            </div>
+            <div class="col-md-6">
+                <input type="email" name="c_email" class="zen-input" placeholder="Email cím" required>
+            </div>
+            <div class="col-12">
+                <input type="tel" id="contact_tel" name="c_tel" class="zen-input" 
+                       placeholder="+36 30 123 4567" maxlength="15" required>
+            </div>
+            <div class="col-12">
+                <textarea name="c_message" rows="4" class="zen-input" placeholder="Miben segíthetünk?" required></textarea>
+            </div>
+            <div class="col-12 text-center mt-4">
+                <button type="submit" class="btn-zen-gold">ÜZENET KÜLDÉSE</button>
+            </div>
+        </form>
+    </div>
 
-                        <div class="tab-pane fade" id="tab-review">
-                            <form action="reviews.php" method="POST" class="row g-4 text-center">
-                                <div class="col-md-6">
-                                    <input type="text" name="r_name" class="zen-input" placeholder="Név" required>
-                                </div>
-                                <div class="col-md-6">
-                                    <select name="r_service" class="zen-input" required style="appearance: none;">
-                                        <option value="" disabled selected>Válasszon kezelést...</option>
-                                        <?php foreach($services as $s): ?>
-                                            <option value="<?= htmlspecialchars($s['name']) ?>"><?= htmlspecialchars($s['name']) ?></option>
-                                        <?php endforeach; ?>
-                                    </select>
-                                </div>
-                                <div class="col-12">
-                                    <p class="small text-muted mb-2">Értékelés</p>
-                                    <div class="star-rating">
-                                        <?php for($i=5; $i>=1; $i--): ?>
-                                            <input type="radio" id="fancy-s-<?= $i ?>" name="rating" value="<?= $i ?>" <?= $i==5?'checked':'' ?>>
-                                            <label for="fancy-s-<?= $i ?>"><i class="fa-solid fa-star"></i></label>
-                                        <?php endfor; ?>
-                                    </div>
-                                </div>
-                                <div class="col-12">
-                                    <textarea name="r_message" rows="4" class="zen-input" placeholder="Írja le az élményét..." required></textarea>
-                                </div>
-                                <div class="col-12 text-center mt-4">
-                                    <button type="submit" class="btn-zen-gold">VÉLEMÉNY KÜLDÉSE</button>
-                                </div>
-                            </form>
-                        </div>
+    <div class="tab-pane fade" id="tab-review">
+        <form action="reviews.php" method="POST" class="row g-4 text-center">
+            <div class="col-md-6">
+                <input type="text" name="r_name" class="zen-input" placeholder="Név" required>
+            </div>
+            <div class="col-md-6">
+                <select name="r_service" class="zen-input" required style="appearance: none;">
+                    <option value="" disabled selected>Válasszon kezelést...</option>
+                    <?php foreach($services as $s): ?>
+                        <option value="<?= htmlspecialchars($s['name']) ?>"><?= htmlspecialchars($s['name']) ?></option>
+                    <?php endforeach; ?>
+                </select>
+            </div>
+            <div class="col-12">
+                <p class="small text-muted mb-2">Értékelés</p>
+                <div class="star-rating">
+                    <?php for($i=5; $i>=1; $i--): ?>
+                        <input type="radio" id="fancy-s-<?= $i ?>" name="rating" value="<?= $i ?>" <?= $i==5?'checked':'' ?>>
+                        <label for="fancy-s-<?= $i ?>"><i class="fa-solid fa-star"></i></label>
+                    <?php endfor; ?>
+                </div>
+            </div>
+            <div class="col-12">
+                <textarea name="r_message" rows="4" class="zen-input" placeholder="Írja le az élményét..." required></textarea>
+            </div>
+            <div class="col-12 text-center mt-4">
+                <button type="submit" class="btn-zen-gold">VÉLEMÉNY KÜLDÉSE</button>
+            </div>
+        </form>
+    </div>
+</div>
                     </div>
                 </div>
             </div>
@@ -645,6 +662,25 @@ document.addEventListener('DOMContentLoaded', () => {
             if(pAmount) pAmount.innerText = new Intl.NumberFormat('hu-HU').format(e.target.value) + " Ft";
         });
     }
+    // lejárati idő visszaszámláló (Voucher modalban)
+    const expiryDate = new Date();
+    expiryDate.setMonth(expiryDate.getMonth() + 12); // 12 hónap múlva jár le
+    const expiryElement = document.getElementById('voucher-expiry');
+    if(expiryElement) {
+        const updateCountdown = () => {
+            const now = new Date();
+            const diff = expiryDate - now;
+            if(diff <= 0) {
+                expiryElement.innerText = "Lejárt";
+                return;
+            }
+            const months = Math.floor(diff / (1000 * 60 * 60 * 24 * 30));
+            const days = Math.floor((diff % (1000 * 60 * 60 * 24 * 30)) / (1000 * 60 * 60 * 24));
+            expiryElement.innerText = `Lejárat: ${months} hónap és ${days} nap`;
+        };
+        updateCountdown();
+        setInterval(updateCountdown, 1000);
+    }
 });
 
 function toggleTheme() {
@@ -706,8 +742,103 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 </script>
+<div class="toast-container position-fixed bottom-0 end-0 p-4" style="z-index: 9999;">
+    <div id="statusToast" class="toast border-0 rounded-0" role="alert" aria-live="assertive" aria-atomic="true" style="background: #fffcf8; border-left: 4px solid #b8924a !important; box-shadow: 10px 10px 30px rgba(0,0,0,0.08);">
+        <div class="toast-body p-3">
+            <div class="d-flex align-items-center">
+                <i id="toastIcon" class="fa-solid fa-leaf me-3" style="color: #b8924a;"></i>
+                <div>
+                    <strong id="toastTitle" class="d-block" style="font-family: 'Shippori Mincho', serif; color: #1a1a1a;">Sikeres művelet</strong>
+                    <span id="toastMessage" class="small text-muted">A feldolgozás sikeres volt.</span>
+                </div>
+                <button type="button" class="btn-close ms-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+        </div>
+    </div>
+</div>
 
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const status = urlParams.get('status');
+    const vStatus = urlParams.get('v_status'); // Utalvány státusz
+    
+    const toastEl = document.getElementById('statusToast');
+    if (toastEl) {
+        const toast = new bootstrap.Toast(toastEl, { delay: 6000 });
+        const title = document.getElementById('toastTitle');
+        const msg = document.getElementById('toastMessage');
+        const icon = document.getElementById('toastIcon');
 
+        // FOGLALÁS SIKERES (Ha status=success-t használsz)
+        if (status === 'success') {
+            title.innerText = "Időpont rögzítve";
+            msg.innerText = "Várjuk szeretettel a választott rituálén!";
+            toast.show();
+        }
+        // VÉLEMÉNY SIKERES
+        else if (status === 'review_success') {
+            title.innerText = "Köszönjük a visszajelzést!";
+            msg.innerText = "Véleménye segít nekünk a folyamatos fejlődésben.";
+            toast.show();
+        }
+        // ÜZENET SIKERES
+        else if (status === 'message_sent') {
+            title.innerText = "Üzenet elküldve";
+            msg.innerText = "Hamarosan keresni fogjuk a megadott elérhetőségeken.";
+            toast.show();
+        }
+        // UTALVÁNY SIKERES
+        else if (vStatus === 'success') {
+            title.innerText = "Sikeres utalvány vásárlás";
+            msg.innerText = "Az egyedi kódot elküldtük az e-mail címére.";
+            toast.show();
+        }
+        // HIBA KEZELÉSE
+        else if (status === 'error') {
+            title.innerText = "Hiba történt";
+            msg.innerText = "Kérjük, ellenőrizze az adatokat és próbálja újra.";
+            icon.className = "fa-solid fa-circle-exclamation me-3";
+            icon.style.color = "#d9534f";
+            toastEl.style.borderLeftColor = "#d9534f";
+            toast.show();
+        }
+
+        // URL tisztítása - minimalista megoldás
+        window.history.replaceState({}, document.title, window.location.pathname);
+    }
+});
+document.addEventListener('DOMContentLoaded', function() {
+    const contactTel = document.getElementById('contact_tel');
+    
+    if (contactTel) {
+        contactTel.addEventListener('input', function(e) {
+            let v = e.target.value.replace(/[^\d+]/g, ''); // Csak számok és + marad
+            
+            // Ha üres, vagy törölni akar, kezdjük újra a +36-tal
+            if (!v.startsWith('+36')) {
+                if (v.startsWith('06')) v = '+36' + v.substring(2);
+                else v = '+36' + v.replace('+', '');
+            }
+            
+            // Formázás: +36 XX XXX XXXX
+            let formatted = v;
+            if (v.length > 3) formatted = v.substring(0, 3) + ' ' + v.substring(3, 5);
+            if (v.length > 5) formatted += ' ' + v.substring(5, 8);
+            if (v.length > 8) formatted += ' ' + v.substring(8, 12);
+            
+            e.target.value = formatted.trim();
+        });
+
+        // Automatikus kezdőérték kattintáskor
+        contactTel.addEventListener('focus', function() {
+            if (this.value === '') {
+                this.value = '+36 ';
+            }
+        });
+    }
+});
+</script>
 <?php include '../config/footer.php'; ?>
 </body>
 </html>

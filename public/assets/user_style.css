@@ -444,3 +444,36 @@ body.dark-theme .footer {
     animation-duration: 0.5s;
     animation-fill-mode: forwards;
 }
+.brand-container {
+    cursor: pointer;
+    display: inline-block;
+    user-select: none;
+    transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94); /* Elegáns, lassabb átmenet */
+    position: relative;
+}
+
+/* Hover effekt: finom elmozdulás és fény */
+.brand-container:hover {
+    opacity: 0.7; /* Lágyabbá válik */
+    transform: translateY(-1px); /* Egy hajszálnyit megemelkedik */
+}
+
+/* Egy nagyon vékony arany aláhúzás, ami hovernél jelenik meg (opcionális Japandi elem) */
+.brand-container::after {
+    content: '';
+    position: absolute;
+    bottom: -5px;
+    left: 0;
+    width: 0;
+    height: 1px;
+    background-color: var(--j-gold);
+    transition: width 0.4s ease;
+}
+
+.brand-container:hover::after {
+    width: 100%; /* Az arany vonal finoman végigfut a logó alatt */
+}
+
+.brand-container:active {
+    transform: scale(0.95); /* Kattintáskor enyhe benyomódás */
+}

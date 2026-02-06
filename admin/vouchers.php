@@ -3,13 +3,14 @@ require_once "../config/database.php";
 session_start();
 if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') { header("Location: ../public/login.php?error=4"); exit; }
 
-// Utalványok lekérése
-$vouchers = $pdo->query("SELECT * FROM vouchers ORDER BY created_at DESC")->fetchAll();
+// Csak a szükséges adatok lekérése
+$vouchers = $pdo->query("SELECT code, amount, status FROM vouchers ORDER BY created_at DESC")->fetchAll();
 ?>
 <!DOCTYPE html>
 <html lang="hu">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AB MASSZÁZS | Utalványok</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -19,38 +20,39 @@ $vouchers = $pdo->query("SELECT * FROM vouchers ORDER BY created_at DESC")->fetc
 <?php include "assets/admin_navbar.php"; ?>
 
 <div class="container pb-5">
-    <div class="d-flex justify-content-between align-items-center mb-5">
-        <div>
-            <h1 class="brand mt-0 mb-1">Utalványok</h1>
-            <p class="text-muted small text-uppercase" style="letter-spacing: 2px;">Aktív és felhasznált keretek kezelése</p>
-        </div>
-        <button class="btn-zen" onclick="openVoucherModal()">+ Új utalvány generálása</button>
+    <div class="mb-5">
+        <h1 class="brand mt-0 mb-1">Utalványok</h1>
+        <p class="text-muted small text-uppercase" style="letter-spacing: 2px;">Aktuális utalványkészlet és állapotok</p>
     </div>
 
-    <div class="j-card p-0 overflow-hidden shadow-sm border-0">
-        <table class="table mb-0">
-            <thead style="background: var(--j-soft);">
+    <div class="j-card p-0 overflow-hidden border-0 bg-transparent">
+        <table class="table admin-table">
+            <thead>
                 <tr>
-                    <th class="ps-4 py-3 small text-muted border-0">KÓD</th>
-                    <th class="py-3 small text-muted border-0">ÉRTÉK</th>
-                    <th class="py-3 small text-muted border-0">ÁLLAPOT</th>
-                    <th class="py-3 small text-muted border-0 text-end pe-4">MŰVELET</th>
+                    <th class="ps-4">UTALVÁNY KÓD</th>
+                    <th>ÉRTÉK</th>
+                    <th class="text-end pe-4">ÁLLAPOT</th>
                 </tr>
             </thead>
             <tbody>
                 <?php foreach($vouchers as $v): ?>
-                <tr class="booking-item align-middle">
-                    <td class="ps-4">
+                <tr class="voucher-row align-middle">
+                    <td class="ps-4" data-label="KÓD">
                         <span class="code-box"><?= htmlspecialchars($v['code']) ?></span>
                     </td>
-                    <td class="fw-bold"><?= number_format($v['amount'], 0, ',', ' ') ?> Ft</td>
-                    <td>
-                        <span class="badge rounded-0 py-2 px-3" style="font-size: 0.6rem; letter-spacing: 1px; background: <?= $v['status'] == 'active' ? 'rgba(72,187,120,0.15); color: #2f855a' : 'rgba(160,155,151,0.15); color: #4a4a4a' ?>;">
-                            <?= strtoupper($v['status']) ?>
-                        </span>
+                    <td data-label="ÉRTÉK">
+                        <span class="fw-bold" style="color: var(--j-dark);"><?= number_format($v['amount'], 0, ',', ' ') ?> Ft</span>
                     </td>
-                    <td class="text-end pe-4">
-                        <button class="btn-control d-inline-flex" title="Szerkesztés"><i class="fas fa-ellipsis-h"></i></button>
+                    <td class="text-end pe-4" data-label="ÁLLAPOT">
+                        <?php if($v['status'] == 'active'): ?>
+                            <span class="status-indicator active">
+                                <i class="fas fa-check-circle me-1"></i> AKTÍV
+                            </span>
+                        <?php else: ?>
+                            <span class="status-indicator used">
+                                <i class="fas fa-history me-1"></i> FELHASZNÁLT
+                            </span>
+                        <?php endif; ?>
                     </td>
                 </tr>
                 <?php endforeach; ?>
@@ -59,73 +61,88 @@ $vouchers = $pdo->query("SELECT * FROM vouchers ORDER BY created_at DESC")->fetc
     </div>
 </div>
 
-<div class="modal fade" id="voucherModal" tabindex="-1">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content border-0">
-            <div class="p-2">
-                <h3 class="brand mb-4 text-center">Utalvány generálása</h3>
-                <form id="voucherForm">
-                    <div class="mb-4">
-                        <label class="small text-muted mb-2 fw-bold">UTALVÁNY KÓDJA</label>
-                        <div class="input-group">
-                            <input type="text" id="v_code" class="form-control fw-bold text-center" style="letter-spacing: 3px;" readonly>
-                            <button type="button" class="btn btn-outline-dark rounded-0 px-3" onclick="generateCode()">
-                                <i class="fas fa-sync-alt"></i>
-                            </button>
-                        </div>
-                        <small class="text-muted mt-1 d-block">A rendszer egyedi azonosítót generál.</small>
-                    </div>
-
-                    <div class="mb-4">
-                        <label class="small text-muted mb-2 fw-bold">ÖSSZEG (FT)</label>
-                        <input type="number" id="v_amount" class="form-control" placeholder="Pl. 15000" required>
-                    </div>
-
-                    <div class="d-flex gap-2 pt-2">
-                        <button type="submit" class="btn btn-zen flex-grow-1">Létrehozás és mentés</button>
-                        <button type="button" class="btn btn-outline-dark rounded-0 px-4" data-bs-dismiss="modal">Mégse</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
-</div>
-
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-<script>
-    const voucherModal = new bootstrap.Modal(document.getElementById('voucherModal'));
-
-    function openVoucherModal() {
-        generateCode();
-        voucherModal.show();
-    }
-</script>
-
 <style>
-/* Specifikus utalvány stílusok */
-.code-box {
-    background: var(--j-soft);
-    padding: 8px 15px;
-    border: 1px dashed var(--j-accent);
-    font-family: 'Monaco', 'Consolas', monospace;
-    font-size: 0.9rem;
-    color: var(--j-dark);
-    display: inline-block;
+/* JAPANDI TÁBLÁZAT STÍLUS */
+.admin-table {
+    border-collapse: separate;
+    border-spacing: 0 10px;
 }
 
-.table > :not(caption) > * > * {
-    padding: 1.2rem 1rem;
+.admin-table thead th {
+    background: transparent;
+    border: none;
+    padding: 10px;
+    font-size: 0.65rem;
+    letter-spacing: 2px;
+    color: var(--j-accent);
+    text-transform: uppercase;
+}
+
+.voucher-row {
+    background: var(--j-white);
+    transition: background 0.3s ease;
+}
+
+.voucher-row td {
+    padding: 1.2rem 10px !important;
+    border-top: 1px solid var(--j-border);
     border-bottom: 1px solid var(--j-border);
 }
 
-.booking-item {
-    transition: all 0.3s ease;
+.voucher-row td:first-child { border-left: 1px solid var(--j-border); }
+.voucher-row td:last-child { border-right: 1px solid var(--j-border); }
+
+/* KÓD MEGJELENÍTÉS */
+.code-box {
+    font-family: 'Monaco', monospace;
+    font-size: 0.9rem;
+    color: var(--j-dark);
+    letter-spacing: 1px;
+    padding: 4px 8px;
+    background: var(--j-soft);
 }
 
-.booking-item:hover {
-    background-color: var(--j-soft) !important;
+/* MINIMALISTA ÁLLAPOT JELZŐK */
+.status-indicator {
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 1px;
+    padding: 5px 12px;
+    display: inline-flex;
+    align-items: center;
+}
+
+.status-indicator.active { color: #2f855a; }
+.status-indicator.used { color: #a0aec0; opacity: 0.6; }
+
+/* MOBIL NÉZET */
+@media (max-width: 768px) {
+    .admin-table thead { display: none; }
+    .voucher-row { display: block; margin-bottom: 15px; border: 1px solid var(--j-border) !important; }
+    .voucher-row td {
+        display: flex;
+        justify-content: space-between;
+        padding: 1rem !important;
+        border: none !important;
+        border-bottom: 1px solid var(--j-soft) !important;
+    }
+    .voucher-row td:last-child { border-bottom: none !important; }
+    .voucher-row td::before {
+        content: attr(data-label);
+        font-size: 0.6rem;
+        color: var(--j-accent);
+        font-weight: 800;
+    }
+}
+.header-spacer {
+    height: 100px; /* Az eddigi 65px helyett */
+}
+   h1.brand {
+    font-weight: 300;
+    margin-bottom: 30px !important;
 }
 </style>
 
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

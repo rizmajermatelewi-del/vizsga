@@ -1,6 +1,11 @@
 <nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom sticky-top" style="padding: 1.5rem 0;">
     <div class="container">
-        <a class="navbar-brand brand fw-bold" href="index.php">AB MASSZÁZS</a>
+        <div class="login-card">
+<div class="brand-container" onclick="location.href='index.php';">
+    <div class="brand-ab">AB</div>
+    <div class="brand-subtitle">MASSZÁZS</div>
+</div>
+    </div>
         
         <button class="navbar-toggler border-0 shadow-none" type="button" data-bs-toggle="collapse" data-bs-target="#navContent">
             <span class="navbar-toggler-icon"></span>

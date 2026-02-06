@@ -1,82 +1,60 @@
 <?php
 session_start();
 
-// Adatbázis kapcsolat - a te beállításaiddal
+// --- 1. ADATBÁZIS KAPCSOLAT ---
 try {
     $pdo = new PDO('mysql:host=localhost;dbname=vizsgaremek;charset=utf8mb4', 'root', '');
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 } catch (PDOException $e) {
-    die('Hiba történt az adatbázis csatlakozásakor.');
+    die('Adatbázis hiba!');
 }
 
-$error_message = '';
-$success_message = '';
+$toast_msg = '';
+$toast_type = '';
 
-// Üzenetek kezelése a GET paraméterek alapján
 if (isset($_GET['error'])) {
-    switch ($_GET['error']) {
-        case '1': $error_message = 'Hibás felhasználónév vagy jelszó!'; break;
-        case '2': $error_message = 'A jelszavak nem egyeznek!'; break;
-        case '3': $error_message = 'Ez a felhasználónév már foglalt!'; break;
-        case '4': $error_message = 'Kérjük, jelentkezzen be a tartalom megtekintéséhez!'; break;
-    }
+    $errors = ['1' => 'Hibás adatok!', '2' => 'A jelszavak nem egyeznek!', '3' => 'Foglalt név vagy email!', '5' => 'Hibás adatok!'];
+    $toast_msg = $errors[$_GET['error']] ?? 'Hiba történt!';
+    $toast_type = 'danger';
 }
-if (isset($_GET['success']) && $_GET['success'] === '1') {
-    $success_message = 'Sikeres regisztráció! Most már beléphet.';
+if (isset($_GET['success'])) {
+    $toast_msg = 'Sikeres regisztráció! Most már beléphetsz.';
+    $toast_type = 'success';
 }
 
-// POST MŰVELETEK (Login & Register)
+// --- 3. LOGIKA (POST) ---
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $action = $_POST['action'] ?? '';
-
     if ($action === 'register') {
         $username = trim($_POST['reg_username']);
+        $email = trim($_POST['reg_email']);
+        $tel = preg_replace('/\D/', '', $_POST['reg_tel'] ?? '');
         $password = $_POST['reg_password'];
         $confirm = $_POST['reg_confirm'];
 
-        if ($password !== $confirm) {
-            header('Location: login.php?error=2'); 
+        if ($password !== $confirm) { header('Location: login.php?error=2'); exit; }
+
+        try {
+            $hashed = password_hash($password, PASSWORD_DEFAULT);
+            $stmt = $pdo->prepare('INSERT INTO users (username, email, tel, password) VALUES (?, ?, ?, ?)');
+            $stmt->execute([$username, $email, $tel, $hashed]);
+            header('Location: login.php?success=1');
             exit;
-        }
-
-        $stmt = $pdo->prepare('SELECT id FROM users WHERE username = :u');
-        $stmt->execute(['u' => $username]);
-        if ($stmt->fetch()) {
-            header('Location: login.php?error=3'); 
-            exit;
-        }
-
-        $hashed = password_hash($password, PASSWORD_DEFAULT);
-        $stmt = $pdo->prepare('INSERT INTO users (username, password, role) VALUES (:u, :p, "user")');
-        $stmt->execute(['u' => $username, 'p' => $hashed]);
-
-        header('Location: login.php?success=1'); 
-        exit;
-    } 
+        } catch (PDOException $e) { header('Location: login.php?error=3'); exit; }
+    }
     
-    elseif ($action === 'login') {
+    if ($action === 'login') {
         $username = trim($_POST['username']);
         $password = $_POST['password'];
-
-        $stmt = $pdo->prepare('SELECT id, username, password, role FROM users WHERE username = :u LIMIT 1');
-        $stmt->execute(['u' => $username]);
-        $user = $stmt->fetch(PDO::FETCH_ASSOC);
-
+        $stmt = $pdo->prepare('SELECT * FROM users WHERE username = ?');
+        $stmt->execute([$username]);
+        $user = $stmt->fetch();
         if ($user && password_verify($password, $user['password'])) {
             $_SESSION['user_id'] = $user['id'];
-            $_SESSION['user_name'] = $user['username']; // Összhangban az index.php-val
-            $_SESSION['role'] = $user['role'] ?? 'user';
-
-            if ($_SESSION['role'] === 'admin') {
-                header('Location: ../admin/dashboard.php');
-            } else {
-                header('Location: index.php');
-            }
+            $_SESSION['user_name'] = $user['username'];
+            header('Location: index.php');
             exit;
-        } else {
-            header('Location: login.php?error=1');
-            exit;
-        }
+        } else { header('Location: login.php?error=1'); exit; }
     }
 }
 ?>
@@ -85,76 +63,170 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ZEN SPA | Sanctuary Entry</title>
+    <title>AB MASSZÁZS | Belépés</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600&family=Shippori+Mincho:wght@500;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/assets/user_style.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <style>
+        :root { --j-bg: #ece0d1; --j-dark: #463f3a; --j-accent: #8a5a44; --j-border: #dbc1ac; }
+        body { background: var(--j-bg); color: var(--j-dark); font-family: 'Segoe UI', sans-serif; display: flex; align-items: center; justify-content: center; min-height: 100vh; margin: 0; overflow-x: hidden; }
+        
+        .login-card { background: #fff; padding: 2.5rem; border-radius: 20px; width: 100%; max-width: 400px; border: 1px solid var(--j-border); box-shadow: 0 10px 30px rgba(0,0,0,0.05); position: relative; }
+        
+        .nav-tabs { border: none; margin-bottom: 2rem; gap: 20px; }
+        .nav-link { color: var(--j-dark) !important; opacity: 0.4; border: none !important; text-transform: uppercase; font-size: 0.8rem; letter-spacing: 2px; font-weight: 600; padding: 0; padding-bottom: 5px; }
+        .nav-link.active { opacity: 1; border-bottom: 2px solid var(--j-accent) !important; background: transparent !important; }
+        
+        /* Harmonizált Input és Szemecske */
+        .input-group-zen { position: relative; border-bottom: 1px solid var(--j-border); margin-bottom: 1.5rem; display: flex; align-items: center; transition: 0.3s; }
+        .input-group-zen:focus-within { border-color: var(--j-accent); background: rgba(138, 90, 68, 0.03); }
+        .input-group-zen .form-control { border: none; background: transparent !important; padding: 12px 5px; flex: 1; color: var(--j-dark); }
+        .input-group-zen .form-control:focus { box-shadow: none; }
+        .toggle-pass { cursor: pointer; opacity: 0.5; padding: 0 10px; transition: 0.3s; font-size: 1.1rem; }
+        .toggle-pass:hover { opacity: 1; color: var(--j-accent); }
+
+        .btn-zen { background: var(--j-dark); color: #fff; border-radius: 50px; padding: 12px; width: 100%; border: none; margin-top: 1rem; text-transform: uppercase; letter-spacing: 1px; transition: 0.3s; }
+        .btn-zen:hover { background: var(--j-accent); }
+        
+        .progress-ab { height: 4px; background: #f0f0f0; margin-top: -1.2rem; margin-bottom: 1.5rem; border-radius: 10px; }
+        #strengthBar { height: 100%; width: 0%; transition: 0.4s; border-radius: 10px; }
+        
+        /* Toast (Pop-up) Stílus */
+        .toast-container { position: fixed; top: 20px; right: 20px; z-index: 10000; }
+        .zen-toast { background: white; border-left: 4px solid var(--j-accent); min-width: 250px; padding: 15px; border-radius: 8px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); display: flex; align-items: center; justify-content: space-between; animation: slideIn 0.5s ease-out forwards; }
+        .zen-toast.danger { border-left-color: #d9534f; }
+        .zen-toast.success { border-left-color: #8e9775; }
+
+        @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+        @keyframes slideOut { from { transform: translateX(0); opacity: 1; } to { transform: translateX(100%); opacity: 0; } }
+    </style>
 </head>
 <body>
 
+<div class="toast-container" id="toastBox"></div>
+
 <div class="login-card">
-    <div class="brand fs-2">ZEN SPA</div>
+    <h2 class="text-center mb-4" style="letter-spacing: 6px; font-weight: 300; color: var(--j-dark);">AB MASSZÁZS</h2>
 
-    <?php if($error_message): ?>
-        <div class="alert alert-danger text-center"><?= $error_message ?></div>
-    <?php endif; ?>
-
-    <?php if($success_message): ?>
-        <div class="alert alert-success text-center"><?= $success_message ?></div>
-    <?php endif; ?>
-
-    <ul class="nav nav-tabs" id="authTab" role="tablist">
-        <li class="nav-item">
-            <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#login-pane">Belépés</button>
-        </li>
-        <li class="nav-item">
-            <button class="nav-link" data-bs-toggle="tab" data-bs-target="#register-pane">Regisztráció</button>
-        </li>
+    <ul class="nav nav-tabs justify-content-center">
+        <li class="nav-item"><button class="nav-link active" data-bs-toggle="tab" data-bs-target="#tab-l">Belépés</button></li>
+        <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-r">Regisztráció</button></li>
     </ul>
 
     <div class="tab-content">
-        <div class="tab-pane fade show active" id="login-pane">
+        <div class="tab-pane fade show active" id="tab-l">
             <form method="POST">
                 <input type="hidden" name="action" value="login">
-                <div class="mb-3">
-                    <label class="small text-muted text-uppercase">Felhasználónév</label>
-                    <input name="username" class="form-control" required>
+                <div class="input-group-zen">
+                    <input type="text" name="username" class="form-control" placeholder="FELHASZNÁLÓNÉV" required>
                 </div>
-                <div class="mb-4">
-                    <label class="small text-muted text-uppercase">Jelszó</label>
-                    <input type="password" name="password" class="form-control" required>
+                <div class="input-group-zen">
+                    <input type="password" name="password" id="logPass" class="form-control" placeholder="JELSZÓ" required>
+                    <i class="bi bi-eye toggle-pass" data-target="logPass"></i>
                 </div>
-                <button class="btn btn-zen w-100">Bejelentkezés</button>
+                <button class="btn btn-zen">Belépés</button>
             </form>
         </div>
 
-        <div class="tab-pane fade" id="register-pane">
-            <form method="POST">
+        <div class="tab-pane fade" id="tab-r">
+            <form method="POST" id="regForm">
                 <input type="hidden" name="action" value="register">
-                <div class="mb-3">
-                    <label class="small text-muted text-uppercase">Felhasználónév</label>
-                    <input name="reg_username" class="form-control" required>
+                <div class="input-group-zen">
+                    <input type="text" name="reg_username" class="form-control" placeholder="FELHASZNÁLÓNÉV" required>
                 </div>
-                <div class="mb-3">
-                    <label class="small text-muted text-uppercase">Jelszó</label>
-                    <input type="password" name="reg_password" class="form-control" required>
+                <div class="input-group-zen">
+                    <input type="email" name="reg_email" class="form-control" placeholder="E-MAIL" required>
                 </div>
-                <div class="mb-4">
-                    <label class="small text-muted text-uppercase">Jelszó megerősítése</label>
-                    <input type="password" name="reg_confirm" class="form-control" required>
+                <div class="input-group-zen">
+                    <input type="text" name="reg_tel" id="reg_tel" class="form-control" value="+36 " required>
                 </div>
-                <button class="btn btn-zen w-100">Fiók létrehozása</button>
+                <div class="input-group-zen mb-4">
+                    <input type="password" name="reg_password" id="pass" class="form-control" placeholder="JELSZÓ" required>
+                    <i class="bi bi-eye toggle-pass" data-target="pass"></i>
+                </div>
+                <div class="progress-ab"><div id="strengthBar"></div></div>
+                <div class="input-group-zen">
+                    <input type="password" name="reg_confirm" id="confirm" class="form-control" placeholder="MEGERŐSÍTÉS" required>
+                    <i class="bi bi-eye toggle-pass" data-target="confirm"></i>
+                </div>
+                <button type="submit" class="btn btn-zen">Regisztráció</button>
             </form>
         </div>
-    </div>
-
-    <div class="text-center mt-5">
-        <a href="../index.php" class="text-decoration-none text-muted small uppercase" style="letter-spacing: 1px;">
-            ← Vissza a főoldalra
-        </a>
     </div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    // 1. TOAST (POP-UP) FÜGGVÉNY
+    function showToast(message, type) {
+        const box = document.getElementById('toastBox');
+        const toast = document.createElement('div');
+        toast.className = `zen-toast ${type}`;
+        toast.innerHTML = `<span>${message}</span><i class="bi bi-x" style="cursor:pointer" onclick="this.parentElement.remove()"></i>`;
+        box.appendChild(toast);
+        
+        setTimeout(() => {
+            toast.style.animation = 'slideOut 0.5s ease-in forwards';
+            setTimeout(() => toast.remove(), 500);
+        }, 4000);
+    }
+
+    // PHP ÜZENETEK MEGJELENÍTÉSE TOAST-KÉNT
+    <?php if($toast_msg): ?>
+        showToast("<?= $toast_msg ?>", "<?= $toast_type ?>");
+    <?php endif; ?>
+
+    // 2. SZEMECSKE ÉS HÁTTÉRSZÍN FIX
+    document.querySelectorAll('.toggle-pass').forEach(icon => {
+        icon.addEventListener('click', function() {
+            const target = document.getElementById(this.getAttribute('data-target'));
+            if (target.type === 'password') {
+                target.type = 'text';
+                this.classList.replace('bi-eye', 'bi-eye-slash');
+            } else {
+                target.type = 'password';
+                this.classList.replace('bi-eye-slash', 'bi-eye');
+            }
+        });
+    });
+
+    // 3. TELEFON LIMIT (Max 13 karakter: +36 + 9 szám)
+    document.getElementById('reg_tel').addEventListener('input', function(e) {
+        let v = e.target.value.replace(/[^\d+]/g, '');
+        if (!v.startsWith('+36')) v = '+36 ';
+        if (v.length > 13) v = v.substring(0, 13);
+        e.target.value = v;
+    });
+
+    // 4. JELSZÓ ERŐSSÉG
+    const pass = document.getElementById('pass');
+    const bar = document.getElementById('strengthBar');
+    pass.addEventListener('input', () => {
+        let v = pass.value, s = 0;
+        if(v.length >= 6) s += 25;
+        if(v.match(/[A-Z]/)) s += 25;
+        if(v.match(/[0-9]/)) s += 25;
+        if(v.match(/[^A-Za-z0-9]/)) s += 25;
+        bar.style.width = s + '%';
+        bar.style.backgroundColor = s < 50 ? '#d9b99b' : (s < 100 ? '#b5c99a' : '#8e9775');
+    });
+
+    // 5. REGISZTRÁCIÓ VALIDÁLÁS (Azonnali pop-up hiba)
+    document.getElementById('regForm').addEventListener('submit', function(e) {
+        const confirm = document.getElementById('confirm');
+        if (pass.value !== confirm.value) {
+            e.preventDefault();
+            showToast("A két jelszó nem egyezik meg!", "danger");
+            confirm.closest('.input-group-zen').style.borderBottomColor = '#d9534f';
+        }
+    });
+
+    // 6. TAB FIX
+    window.onload = () => {
+        const url = new URLSearchParams(window.location.search);
+        if (url.has('success') || (url.has('error') && url.get('error') !== '1')) {
+            new bootstrap.Tab(document.querySelector('[data-bs-target="#tab-r"]')).show();
+        }
+    };
+</script>
 </body>
 </html>

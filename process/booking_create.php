@@ -36,3 +36,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         die("Adatbázis hiba: " . $e->getMessage());
     }
 }
+if ($result) {
+    $message = "<p>Kedves <strong>$name</strong>!</p><p>Sikeresen rögzítettük foglalását:</p><p>Időpont: $date $time</p>";
+    sendZenEmail($email, "Visszaigazolás - AB MASSZÁZS", $message);
+    
+    header("Location: ../public/booking.php?success=1");
+    exit();
+}

@@ -232,7 +232,7 @@ $services = $stmt->fetchAll();
                 <h2 class="brand mb-4">Adjon élményt szeretteinek</h2>
                 
                 <?php if(isset($_SESSION['user_id'])): ?>
-                    <form action="vouchers.php" method="POST">
+                    <form id="voucherForm" class="row g-3">
                         <div class="row g-3">
                             <div class="col-12 mb-2">
                                 <label class="small text-muted mb-1">Vásárló:</label>
@@ -249,7 +249,7 @@ $services = $stmt->fetchAll();
                                 <input type="email" name="v_buyer_email" class="form-control" placeholder="AZ ÖN EMAIL CÍME" required>
                             </div>
                             <div class="col-md-6">
-                                <input type="tel" name="v_buyer_phone" id="v_buyer_phone" class="form-control" placeholder="TELEFONSZÁM" value="+36 " required maxlength="13">
+                                <input type="tel" name="v_buyer_tel" id="v_buyer_tel" class="form-control" placeholder="TELEFONSZÁM" value="+36 " required maxlength="13">
                             </div>
                             
                             <div class="col-12">
@@ -275,7 +275,7 @@ $services = $stmt->fetchAll();
 
 <script>
     // Telefonszám formázó az utalványhoz is
-    const vPhone = document.getElementById('v_buyer_phone');
+    const vPhone = document.getElementById('v_buyer_tel');
     if(vPhone) {
         vPhone.addEventListener('input', function(e) {
             let v = e.target.value.replace(/[^\d+]/g, '');
@@ -341,36 +341,43 @@ $services = $stmt->fetchAll();
                     <span class="info-label">Foglalás</span>
                     <h2 class="brand mt-2">Text</h2>
                 </div>
-                <form action="booking.php" method="POST" class="row g-4">
-                    <div class="col-md-6"><input type="text" name="customer_name" class="form-control" placeholder="NÉV" required></div>
-                    <div class="col-md-6"><input type="text" name="tel" class="form-control" placeholder="TELEFON" required></div>
-                    <div class="col-12">
-                        <select name="service_id" class="form-select" required>
-                            <option value="" disabled selected>VÁLASSZON KEZELÉST...</option>
-                            <?php foreach($services as $s): ?>
-                                <option value="<?= $s['id'] ?>"><?= htmlspecialchars($s['name']) ?></option>
-                            <?php endforeach; ?>
-                        </select>
-                    </div>
-                    <div class="col-12">
-                        <input type="text" id="booking_date" name="booking_date" class="form-control" placeholder="DÁTUM KIVÁLASZTÁSA" required readonly>
-                    </div>
-                    
-                    <div id="time-selection-area" class="col-12 mt-4" style="display:none;">
-                        <div class="time-grid">
-                            <?php foreach(['09:00','10:00','11:00','13:00','14:00','15:00','16:00','17:00'] as $t): ?>
-                                <div class="time-item">
-                                    <input type="radio" class="btn-check" name="booking_time" id="t-<?= $t ?>" value="<?= $t ?>" required>
-                                    <label class="time-box w-100 d-block text-center" for="t-<?= $t ?>"><?= $t ?></label>
-                                </div>
-                            <?php endforeach; ?>
-                        </div>
-                    </div>
-                    
-                    <div class="col-12 text-center mt-5">
-                        <button type="submit" name="submit_booking" class="btn-zen px-5">Foglalás megerősítése</button>
-                    </div>
-                </form>
+                <form id="apiBookingForm" class="row g-4">
+    <div class="col-md-6">
+        <input type="text" name="customer_name" id="c_name" class="form-control" placeholder="NÉV" required>
+    </div>
+    <div class="col-md-6">
+        <input type="email" name="customer_email" id="c_email" class="form-control" placeholder="E-MAIL" required>
+    </div>
+    <div class="col-md-6">
+        <input type="text" name="tel" id="c_tel" class="form-control" placeholder="TELEFON" required>
+    </div>
+    <div class="col-12">
+        <select name="service_id" id="c_service" class="form-select" required>
+            <option value="" disabled selected>VÁLASSZON KEZELÉST...</option>
+            <?php foreach($services as $s): ?>
+                <option value="<?= $s['id'] ?>"><?= htmlspecialchars($s['name']) ?></option>
+            <?php endforeach; ?>
+        </select>
+    </div>
+    <div class="col-12">
+        <input type="text" id="booking_date" name="booking_date" class="form-control" placeholder="DÁTUM KIVÁLASZTÁSA" required readonly>
+    </div>
+    
+    <div id="time-selection-area" class="col-12 mt-4" style="display:none;">
+        <div class="time-grid">
+            <?php foreach(['09:00','10:00','11:00','13:00','14:00','15:00','16:00','17:00'] as $t): ?>
+                <div class="time-item">
+                    <input type="radio" class="btn-check" name="booking_time" id="t-<?= $t ?>" value="<?= $t ?>" required>
+                    <label class="time-box w-100 d-block text-center" for="t-<?= $t ?>"><?= $t ?></label>
+                </div>
+            <?php endforeach; ?>
+        </div>
+    </div>
+    
+    <div class="col-12 text-center mt-5">
+        <button type="submit" id="confirmBooking" class="btn btn-zen-gold w-100 py-3 rounded-0 text-uppercase fw-bold letter-spacing-2">Foglalás megerősítése</button>
+    </div>
+</form>
             </div>
         </div>
     </div>
@@ -391,17 +398,8 @@ $services = $stmt->fetchAll();
     </div>
 </div>
 </section>
-<script>
-// PHP-ból érkező jelzés alapján megnyitjuk a modalt
-<?php if(isset($_GET['status']) && $_GET['status'] == 'success'): ?>
-    document.addEventListener('DOMContentLoaded', function() {
-        var myModal = new bootstrap.Modal(document.getElementById('successModal'));
-        myModal.show();
-    });
-<?php endif; ?>
-</script>
 
-<section id="contact-info" class="py-5">
+<section id="contact" class="py-5">
     <div class="container">
         <div class="row g-0 shadow-lg" style="background: #fdfcfb;">
             <div class="col-lg-7 p-0 overflow-hidden">
@@ -438,79 +436,88 @@ $services = $stmt->fetchAll();
                 </div>
             </div>
         </div>
-        
-        <?php if (isset($_GET['status']) && $_GET['status'] === 'message_sent'): ?>
-            <div class="message-toast mt-4">
-                <i class="fa-solid fa-check-circle me-2"></i> Üzenetét rögzítettük. Hamarosan válaszolunk.
-            </div>
-        <?php endif; ?>
     </div>
 </section>
+
+<section class="py-5 bg-light-zen">
     <div class="container">
         <div class="row justify-content-center">
             <div class="col-lg-8">
-                <div class="zen-form-card shadow-sm">
+                <div class="zen-form-card">
                     <ul class="nav nav-tabs border-0 justify-content-center mb-5" id="zenTab" role="tablist">
                         <li class="nav-item">
-                            <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#tab-contact">Kapcsolat</button>
+                            <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#tab-contact">Kapcsolatfelvétel</button>
                         </li>
                         <li class="nav-item">
-                            <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-review">Vélemény</button>
+                            <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-review">Élmény megosztása</button>
                         </li>
                     </ul>
 
                     <div class="tab-content">
-    <div class="tab-pane fade show active" id="tab-contact">
-        <form action="contact.php" method="POST" class="row g-4">
-            <div class="col-md-6">
-                <input type="text" name="c_name" class="zen-input" placeholder="Az Ön neve" required>
-            </div>
-            <div class="col-md-6">
-                <input type="email" name="c_email" class="zen-input" placeholder="Email cím" required>
-            </div>
-            <div class="col-12">
-                <input type="tel" id="contact_tel" name="c_tel" class="zen-input" 
-                       placeholder="+36 30 123 4567" maxlength="15" required>
-            </div>
-            <div class="col-12">
-                <textarea name="c_message" rows="4" class="zen-input" placeholder="Miben segíthetünk?" required></textarea>
-            </div>
-            <div class="col-12 text-center mt-4">
-                <button type="submit" class="btn-zen-gold">ÜZENET KÜLDÉSE</button>
-            </div>
-        </form>
-    </div>
+                        <div class="tab-pane fade show active" id="tab-contact">
+                            <form id="contactForm" class="row g-4">
+                                <div class="col-md-6">
+                                    <label class="small text-muted mb-1">Név</label>
+                                    <input type="text" name="c_name" class="zen-input" placeholder="Az Ön neve" required>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="small text-muted mb-1">Email</label>
+                                    <input type="email" name="c_email" class="zen-input" placeholder="pelda@email.com" required>
+                                </div>
+                                <div class="col-12">
+                                    <label class="small text-muted mb-1">Telefonszám</label>
+                                    <input type="tel" name="c_tel" class="zen-input" placeholder="+36 30 123 4567" required>
+                                </div>
+                                <div class="col-12">
+                                    <label class="small text-muted mb-1">Üzenet</label>
+                                    <textarea name="c_message" rows="4" class="zen-input" placeholder="Miben segíthetünk Önnek?" required></textarea>
+                                </div>
+                                <div class="col-12 text-center mt-5">
+                                    <button type="submit" class="btn-zen-gold">ÜZENET KÜLDÉSE</button>
+                                </div>
+                            </form>
+                        </div>
 
-    <div class="tab-pane fade" id="tab-review">
-        <form action="reviews.php" method="POST" class="row g-4 text-center">
-            <div class="col-md-6">
-                <input type="text" name="r_name" class="zen-input" placeholder="Név" required>
-            </div>
-            <div class="col-md-6">
-                <select name="r_service" class="zen-input" required style="appearance: none;">
-                    <option value="" disabled selected>Válasszon kezelést...</option>
-                    <?php foreach($services as $s): ?>
-                        <option value="<?= htmlspecialchars($s['name']) ?>"><?= htmlspecialchars($s['name']) ?></option>
-                    <?php endforeach; ?>
-                </select>
-            </div>
-            <div class="col-12">
-                <p class="small text-muted mb-2">Értékelés</p>
+                        <div class="tab-pane fade" id="tab-review">
+    <form id="reviewForm" class="row g-4">
+        <div class="col-12">
+            <label class="small text-muted mb-1">Választott szolgáltatás</label>
+            <select name="r_service" class="zen-input" required>
+                <option value="" disabled selected>Válasszon kezelést...</option>
+                <?php foreach($services as $s): ?>
+                    <option value="<?= htmlspecialchars($s['name']) ?>"><?= htmlspecialchars($s['name']) ?></option>
+                <?php endforeach; ?>
+            </select>
+        </div>
+        
+        <div class="col-md-6">
+            <input type="text" name="r_user_name" class="zen-input" placeholder="Az Ön neve" required>
+        </div>
+        <div class="col-md-6">
+            <input type="email" name="r_user_email" class="zen-input" placeholder="Email címe" required>
+        </div>
+        
+        <div class="col-12 text-center py-2">
+            <p class="small text-muted mb-2">Hogy érezte magát nálunk?</p>
+            <div class="star-rating-wrapper">
                 <div class="star-rating">
-                    <?php for($i=5; $i>=1; $i--): ?>
-                        <input type="radio" id="fancy-s-<?= $i ?>" name="rating" value="<?= $i ?>" <?= $i==5?'checked':'' ?>>
-                        <label for="fancy-s-<?= $i ?>"><i class="fa-solid fa-star"></i></label>
-                    <?php endfor; ?>
+                    <input type="radio" id="fancy-s-5" name="rating" value="5" checked><label for="fancy-s-5"><i class="fa-solid fa-star"></i></label>
+                    <input type="radio" id="fancy-s-4" name="rating" value="4"><label for="fancy-s-4"><i class="fa-solid fa-star"></i></label>
+                    <input type="radio" id="fancy-s-3" name="rating" value="3"><label for="fancy-s-3"><i class="fa-solid fa-star"></i></label>
+                    <input type="radio" id="fancy-s-2" name="rating" value="2"><label for="fancy-s-2"><i class="fa-solid fa-star"></i></label>
+                    <input type="radio" id="fancy-s-1" name="rating" value="1"><label for="fancy-s-1"><i class="fa-solid fa-star"></i></label>
                 </div>
             </div>
-            <div class="col-12">
-                <textarea name="r_message" rows="4" class="zen-input" placeholder="Írja le az élményét..." required></textarea>
-            </div>
-            <div class="col-12 text-center mt-4">
-                <button type="submit" class="btn-zen-gold">VÉLEMÉNY KÜLDÉSE</button>
-            </div>
-        </form>
-    </div>
+        </div>
+
+        <div class="col-12">
+            <textarea name="r_message" rows="4" class="zen-input" placeholder="Írja le élményeit..." required></textarea>
+        </div>
+        
+        <div class="col-12 text-center">
+            <button type="submit" class="btn-zen-gold">VÉLEMÉNY KÜLDÉSE</button>
+        </div>
+    </form>
 </div>
                     </div>
                 </div>
@@ -518,230 +525,23 @@ $services = $stmt->fetchAll();
         </div>
     </div>
 </section>
+
 <style>
     /* Kártya alapstílus */
-    .zen-form-card {
-        background: #ffffff;
-        padding: 60px;
-        border: 1px solid rgba(184, 146, 74, 0.1);
-    }
-
-    /* Tab navigáció */
-    #zenTab .nav-link {
-        background: none;
-        border: none;
-        color: #999;
-        text-transform: uppercase;
-        letter-spacing: 3px;
-        font-size: 0.8rem;
-        padding: 10px 30px;
-        position: relative;
-        transition: 0.4s;
-    }
-
-    #zenTab .nav-link.active {
-        color: #1a1a1a;
-        font-weight: 600;
-    }
-
-    #zenTab .nav-link.active::after {
-        content: '';
-        position: absolute;
-        bottom: 0;
-        left: 30%;
-        width: 40%;
-        height: 1px;
-        background: #b8924a;
-    }
-
-    /* Inputok - Japandi minimalizmus */
-    .zen-input {
-        width: 100%;
-        background: transparent;
-        border: none;
-        border-bottom: 1px solid rgba(0,0,0,0.08);
-        padding: 12px 0;
-        font-size: 0.95rem;
-        transition: 0.3s;
-        border-radius: 0;
-        outline: none;
-    }
-
-    .zen-input:focus {
-        border-bottom: 1px solid #b8924a;
-    }
-
-    /* Arany gomb */
-    .btn-zen-gold {
-        background: #1a1a1a;
-        color: #fff;
-        border: none;
-        padding: 15px 45px;
-        letter-spacing: 2px;
-        font-size: 0.75rem;
-        transition: 0.4s ease;
-        cursor: pointer;
-    }
-
-    .btn-zen-gold:hover {
-        background: #b8924a;
-        transform: translateY(-2px);
-    }
-
-    /* Csillagok */
-    .star-rating {
-        display: flex;
-        flex-direction: row-reverse;
-        justify-content: center;
-        gap: 15px;
-    }
+    .zen-form-card { background: #ffffff; padding: 60px; border: 1px solid rgba(184, 146, 74, 0.1); }
+    #zenTab .nav-link { background: none; border: none; color: #999; text-transform: uppercase; letter-spacing: 3px; font-size: 0.8rem; padding: 10px 30px; position: relative; transition: 0.4s; }
+    #zenTab .nav-link.active { color: #1a1a1a; font-weight: 600; }
+    #zenTab .nav-link.active::after { content: ''; position: absolute; bottom: 0; left: 30%; width: 40%; height: 1px; background: #b8924a; }
+    .zen-input { width: 100%; background: transparent; border: none; border-bottom: 1px solid rgba(0,0,0,0.08); padding: 12px 0; font-size: 0.95rem; transition: 0.3s; border-radius: 0; outline: none; }
+    .zen-input:focus { border-bottom: 1px solid #b8924a; }
+    .btn-zen-gold { background: #1a1a1a; color: #fff; border: none; padding: 15px 45px; letter-spacing: 2px; font-size: 0.75rem; transition: 0.4s ease; cursor: pointer; }
+    .btn-zen-gold:hover { background: #b8924a; transform: translateY(-2px); }
+    .star-rating { display: flex; flex-direction: row-reverse; justify-content: center; gap: 15px; }
     .star-rating input { display: none; }
-    .star-rating label {
-        color: #e0e0e0;
-        font-size: 1.5rem;
-        cursor: pointer;
-        transition: 0.3s;
-    }
-    .star-rating label:hover,
-    .star-rating label:hover ~ label,
-    .star-rating input:checked ~ label {
-        color: #b8924a;
-    }
+    .star-rating label { color: #e0e0e0; font-size: 1.5rem; cursor: pointer; transition: 0.3s; }
+    .star-rating label:hover, .star-rating label:hover ~ label, .star-rating input:checked ~ label { color: #b8924a; }
 </style>
-    </div>
-</section>
 
-<div class="modal fade" id="voucherModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content border-0 shadow-lg" style="border-radius:0; background: #fcfaf7;">
-            <div class="modal-body p-5 text-center">
-                <div class="mb-4">
-                    <i class="fas fa-gift fa-3x text-warning opacity-50"></i>
-                </div>
-                <h3 class="brand">Az ajándék úton van!</h3>
-                <p class="text-muted small my-4">Sikeresen megvásárolta az ajándékkártyát <strong><?= htmlspecialchars($_GET['name'] ?? 'Szerette') ?></strong> részére. A visszaigazolást hamarosan küldjük.</p>
-                <button type="button" class="btn-zen w-100" data-bs-dismiss="modal">Rendben</button>
-            </div>
-        </div>
-    </div>
-</div>
-
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-<script src="https://npmcdn.com/flatpickr/dist/l10n/hu.js"></script>
-
-<script>
-    // Voucher siker visszajelzés kezelése
-<?php if(isset($_GET['v_status']) && $_GET['v_status'] == 'success'): ?>
-    document.addEventListener('DOMContentLoaded', function() {
-        var vModal = new bootstrap.Modal(document.getElementById('voucherModal'));
-        vModal.show();
-    });
-<?php endif; ?>
-document.addEventListener('DOMContentLoaded', () => {
-    // SCROLL REVEAL (Görgetési animáció) - MEGLÉVŐ
-    const observer = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) entry.target.classList.add('visible');
-        });
-    }, { threshold: 0.1 });
-    document.querySelectorAll('.reveal').forEach(r => observer.observe(r));
-
-    // VOUCHER DINAMIKUS ELŐNÉZET - MEGLÉVŐ
-    const vNameInput = document.getElementById('v_name');
-    const vAmountSelect = document.getElementById('v_amount');
-    if(vNameInput) {
-        vNameInput.addEventListener('input', (e) => {
-            const pName = document.getElementById('p-name');
-            if(pName) pName.innerText = e.target.value.toUpperCase() || "VENDÉGÜNK NEVE";
-        });
-    }
-    if(vAmountSelect) {
-        vAmountSelect.addEventListener('change', (e) => {
-            const pAmount = document.getElementById('p-amount');
-            if(pAmount) pAmount.innerText = new Intl.NumberFormat('hu-HU').format(e.target.value) + " Ft";
-        });
-    }
-    // lejárati idő visszaszámláló (Voucher modalban)
-    const expiryDate = new Date();
-    expiryDate.setMonth(expiryDate.getMonth() + 12); // 12 hónap múlva jár le
-    const expiryElement = document.getElementById('voucher-expiry');
-    if(expiryElement) {
-        const updateCountdown = () => {
-            const now = new Date();
-            const diff = expiryDate - now;
-            if(diff <= 0) {
-                expiryElement.innerText = "Lejárt";
-                return;
-            }
-            const months = Math.floor(diff / (1000 * 60 * 60 * 24 * 30));
-            const days = Math.floor((diff % (1000 * 60 * 60 * 24 * 30)) / (1000 * 60 * 60 * 24));
-            expiryElement.innerText = `Lejárat: ${months} hónap és ${days} nap`;
-        };
-        updateCountdown();
-        setInterval(updateCountdown, 1000);
-    }
-});
-
-function toggleTheme() {
-    const isDark = document.body.classList.toggle('dark-theme');
-    document.cookie = `theme=${isDark ? 'dark' : 'light'};path=/;max-age=31536000`;
-}
-
-window.addEventListener('load', () => {
-    const preloader = document.getElementById('zen-preloader');
-    if (preloader) {
-        setTimeout(() => {
-            preloader.style.opacity = '0';
-            setTimeout(() => preloader.style.display = 'none', 800);
-        }, 600);
-    }
-});
-
-<?php if(isset($_SESSION['message'])): ?>
-    const modalEl = document.getElementById('statusModal');
-    if (modalEl) {
-        const statusModal = new bootstrap.Modal(modalEl);
-        statusModal.show();
-    }
-    <?php unset($_SESSION['message'], $_SESSION['msg_type']); ?>
-<?php endif; ?>
-document.addEventListener('DOMContentLoaded', () => {
-    // Naptár inicializálása (Flatpickr)
-    flatpickr("#booking_date", {
-        locale: "hu",
-        minDate: "today",
-        dateFormat: "Y-m-d",
-        disableMobile: "true",
-        onChange: function(selectedDates, dateStr) {
-            const timeArea = document.getElementById('time-selection-area');
-            const feedback = document.getElementById('date-feedback');
-            
-            // Megjelenítjük az idősávokat animációval
-            timeArea.style.display = 'block';
-            timeArea.classList.add('reveal', 'visible');
-            
-            // Személyes visszajelzés
-            feedback.innerText = "Nagyszerű! " + dateStr + " napra az alábbi szabad időpontjaink vannak:";
-
-            // Itt hívjuk meg az ellenőrzést, hogy melyik időpont foglalt
-            fetch(`check_availability.php?date=${dateStr}`)
-                .then(res => res.json())
-                .then(taken => {
-                    document.querySelectorAll('.btn-check').forEach(s => {
-                        s.disabled = false; // Alapból mindent engedélyezünk
-                        // Ha a válaszban benne van az időpont, letiltjuk a gombot
-                        if(taken.includes(s.value) || taken.includes(s.value + ':00')) {
-                            s.disabled = true;
-                        }
-                    });
-                })
-                .catch(err => console.log("Hiba az időpontok lekérésekor: ", err));
-        }
-    });
-});
-
-</script>
 <div class="toast-container position-fixed bottom-0 end-0 p-4" style="z-index: 9999;">
     <div id="statusToast" class="toast border-0 rounded-0" role="alert" aria-live="assertive" aria-atomic="true" style="background: #fffcf8; border-left: 4px solid #b8924a !important; box-shadow: 10px 10px 30px rgba(0,0,0,0.08);">
         <div class="toast-body p-3">
@@ -757,87 +557,317 @@ document.addEventListener('DOMContentLoaded', () => {
     </div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script src="https://npmcdn.com/flatpickr/dist/l10n/hu.js"></script>
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    const urlParams = new URLSearchParams(window.location.search);
-    const status = urlParams.get('status');
-    const vStatus = urlParams.get('v_status'); // Utalvány státusz
-    
+/**
+ * AB MASSZÁZS - Stabilizált Japandi Script Block v4.0
+ * Minden funkció egy helyen: Foglalás, Kapcsolat, Vélemény, Validáció
+ */
+
+// --- 1. JAPANDI STÍLUSÚ ÉRTESÍTÉSEK (TOAST) ---
+function showApiToast(title, message, isError = false) {
     const toastEl = document.getElementById('statusToast');
-    if (toastEl) {
-        const toast = new bootstrap.Toast(toastEl, { delay: 6000 });
-        const title = document.getElementById('toastTitle');
-        const msg = document.getElementById('toastMessage');
-        const icon = document.getElementById('toastIcon');
-
-        // FOGLALÁS SIKERES (Ha status=success-t használsz)
-        if (status === 'success') {
-            title.innerText = "Időpont rögzítve";
-            msg.innerText = "Várjuk szeretettel a választott rituálén!";
-            toast.show();
-        }
-        // VÉLEMÉNY SIKERES
-        else if (status === 'review_success') {
-            title.innerText = "Köszönjük a visszajelzést!";
-            msg.innerText = "Véleménye segít nekünk a folyamatos fejlődésben.";
-            toast.show();
-        }
-        // ÜZENET SIKERES
-        else if (status === 'message_sent') {
-            title.innerText = "Üzenet elküldve";
-            msg.innerText = "Hamarosan keresni fogjuk a megadott elérhetőségeken.";
-            toast.show();
-        }
-        // UTALVÁNY SIKERES
-        else if (vStatus === 'success') {
-            title.innerText = "Sikeres utalvány vásárlás";
-            msg.innerText = "Az egyedi kódot elküldtük az e-mail címére.";
-            toast.show();
-        }
-        // HIBA KEZELÉSE
-        else if (status === 'error') {
-            title.innerText = "Hiba történt";
-            msg.innerText = "Kérjük, ellenőrizze az adatokat és próbálja újra.";
-            icon.className = "fa-solid fa-circle-exclamation me-3";
-            icon.style.color = "#d9534f";
-            toastEl.style.borderLeftColor = "#d9534f";
-            toast.show();
-        }
-
-        // URL tisztítása - minimalista megoldás
-        window.history.replaceState({}, document.title, window.location.pathname);
-    }
-});
-document.addEventListener('DOMContentLoaded', function() {
-    const contactTel = document.getElementById('contact_tel');
+    const toastTitle = document.getElementById('toastTitle');
+    const toastMessage = document.getElementById('toastMessage');
+    const toastIcon = document.getElementById('toastIcon');
     
-    if (contactTel) {
-        contactTel.addEventListener('input', function(e) {
-            let v = e.target.value.replace(/[^\d+]/g, ''); // Csak számok és + marad
-            
-            // Ha üres, vagy törölni akar, kezdjük újra a +36-tal
-            if (!v.startsWith('+36')) {
-                if (v.startsWith('06')) v = '+36' + v.substring(2);
-                else v = '+36' + v.replace('+', '');
-            }
-            
-            // Formázás: +36 XX XXX XXXX
-            let formatted = v;
-            if (v.length > 3) formatted = v.substring(0, 3) + ' ' + v.substring(3, 5);
-            if (v.length > 5) formatted += ' ' + v.substring(5, 8);
-            if (v.length > 8) formatted += ' ' + v.substring(8, 12);
-            
-            e.target.value = formatted.trim();
-        });
+    if (!toastEl) return; // Biztonsági ellenőrzés
 
-        // Automatikus kezdőérték kattintáskor
-        contactTel.addEventListener('focus', function() {
-            if (this.value === '') {
-                this.value = '+36 ';
+    // Stílus beállítása a branding szerint
+    if (isError) {
+        toastEl.style.borderLeft = "5px solid #dc3545"; // Hiba piros
+        toastIcon.className = "fa-solid fa-circle-exclamation me-3 text-danger";
+        toastTitle.innerText = title || "Hiba történt";
+    } else {
+        toastEl.style.borderLeft = "5px solid #b8924a"; // Japandi arany
+        toastIcon.className = "fa-solid fa-leaf me-3";
+        toastIcon.style.color = "#b8924a";
+        toastTitle.innerText = title || "Sikeres művelet";
+    }
+    
+    toastMessage.innerHTML = message;
+    const toast = new bootstrap.Toast(toastEl);
+    toast.show();
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+
+    // --- 2. IDŐPONTFOGLALÁS KEZELÉSE ---
+    const bookingForm = document.getElementById('apiBookingForm');
+    if (bookingForm) {
+        bookingForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const formData = {
+                customer_name: document.getElementById('c_name').value,
+                service_id: document.getElementById('c_service').value,
+                email: document.getElementById('c_email').value,
+                tel: document.getElementById('c_tel').value,
+                booking_date: document.getElementById('booking_date').value,
+                booking_time: document.querySelector('input[name="booking_time"]:checked')?.value
+            };
+
+            if(!formData.booking_time) { 
+                showApiToast("Hiba", "Kérjük, válasszon időpontot a szabad sávok közül!", true); 
+                return; 
+            }
+
+            fetch('api.php?request=bookings', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(formData)
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    showApiToast("Sikeres foglalás", data.success);
+                    bookingForm.reset();
+                    if (document.getElementById('time-selection-area')) {
+                        document.getElementById('time-selection-area').style.display = 'none';
+                    }
+                } else {
+                    throw new Error(data.error || "Hiba történt a mentés során.");
+                }
+            })
+            .catch(err => {
+                console.error("Booking Error:", err);
+                showApiToast("Hiba", err.message, true);
+            });
+        });
+    }
+
+    // --- 3. KAPCSOLATI ÜZENET KÜLDÉSE ---
+    const contactForm = document.getElementById('contactForm');
+    if (contactForm) {
+        contactForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const contactData = {
+                name: document.getElementById('contact_name').value,
+                email: document.getElementById('contact_email').value,
+                tel: document.getElementById('contact_tel').value, // SQL: phone oszlop
+                message: document.getElementById('contact_message').value
+            };
+
+            fetch('api.php?request=messages', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(contactData)
+            })
+            .then(res => res.json())
+            .then(data => {
+                showApiToast("Üzenet elküldve", "Köszönjük! Hamarosan válaszolunk.");
+                contactForm.reset();
+            })
+            .catch(err => showApiToast("Hiba", "Nem sikerült elküldeni az üzenetet.", true));
+        });
+    }
+
+    // --- 4. VÉLEMÉNYEK BEKÜLDÉSE (SQL SZINKRONIZÁLT) ---
+    const reviewForm = document.getElementById('reviewForm');
+    if (reviewForm) {
+        reviewForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const ratingInput = this.querySelector('[name="rating"]:checked');
+            
+            if (!ratingInput) {
+                showApiToast("Hiba", "Kérjük, értékelje munkánkat csillagokkal is!", true);
+                return;
+            }
+
+            const reviewData = {
+                user_name: this.querySelector('[name="r_user_name"]').value,
+                service_name: this.querySelector('[name="r_service"]').value,
+                rating: ratingInput.value,
+                comment: this.querySelector('[name="r_message"]').value // SQL: comment mező
+            };
+
+            fetch('api.php?request=reviews', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(reviewData)
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    showApiToast("Köszönjük!", "Értékelését sikeresen rögzítettük.");
+                    reviewForm.reset();
+                    // Modal bezárása
+                    const modalEl = document.getElementById('reviewModal');
+                    const modal = bootstrap.Modal.getInstance(modalEl);
+                    if(modal) modal.hide();
+                    
+                    // Frissítés, hogy látszódjon az új vélemény
+                    setTimeout(() => location.reload(), 1500);
+                } else {
+                    throw new Error(data.error);
+                }
+            })
+            .catch(err => showApiToast("Hiba", err.message || "Hiba történt a mentéskor.", true));
+        });
+    }
+
+    // --- 5. NAPTÁR ÉS IDŐSÁVOK (FLATPICKR) ---
+    if (document.getElementById('booking_date')) {
+        flatpickr("#booking_date", {
+            locale: "hu", 
+            minDate: "today", 
+            dateFormat: "Y-m-d",
+            onChange: function(selectedDates, dateStr) {
+                const timeArea = document.getElementById('time-selection-area');
+                if(timeArea) timeArea.style.display = 'block';
+                
+                fetch(`api.php?request=bookings&date=${dateStr}`)
+                    .then(res => res.json())
+                    .then(taken => {
+                        document.querySelectorAll('.btn-check').forEach(s => {
+                            const label = document.querySelector(`label[for="${s.id}"]`);
+                            // Ellenőrizzük, hogy az időpont (pl. 09:00) benne van-e a foglaltak között
+                            const isTaken = taken.some(t => t.startsWith(s.value));
+                            s.disabled = isTaken;
+                            if(label) {
+                                label.style.opacity = isTaken ? "0.2" : "1";
+                                label.style.textDecoration = isTaken ? "line-through" : "none";
+                            }
+                        });
+                    });
             }
         });
     }
+
+    // --- 6. TELEFONSZÁM AUTOMATIKUS FORMÁZÓ (+36) ---
+    const phoneFields = ['c_tel', 'contact_tel', 'v_buyer_tel'];
+    phoneFields.forEach(id => {
+        const input = document.getElementById(id);
+        if (input) {
+            input.addEventListener('input', (e) => {
+                let v = e.target.value.replace(/[^\d+]/g, '');
+                if (!v.startsWith('+36')) v = '+36' + v.replace(/^\+?36?/, '');
+                if (v.length > 12) v = v.substring(0, 12);
+                e.target.value = v;
+            });
+            input.addEventListener('focus', (e) => { 
+                if (e.target.value === "") e.target.value = "+36"; 
+            });
+        }
+    });
+
+    // --- 7. GÖRGETÉSI ANIMÁCIÓK (REVEAL) ---
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) entry.target.classList.add('visible');
+        });
+    }, { threshold: 0.1 });
+
+    document.querySelectorAll('.reveal').forEach(r => observer.observe(r));
 });
+
+// --- 8. PRELOADER (ZEN ÉLMÉNY) ---
+window.addEventListener('load', () => {
+    const preloader = document.getElementById('zen-preloader');
+    if (preloader) {
+        setTimeout(() => {
+            preloader.style.opacity = '0';
+            setTimeout(() => preloader.style.display = 'none', 800);
+        }, 600);
+    }
+});
+const loginForm = document.getElementById('loginForm');
+if (loginForm) {
+    loginForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        const loginData = {
+            email: this.querySelector('[name="email"]').value,
+            password: this.querySelector('[name="password"]').value
+        };
+
+        fetch('api.php?request=login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(loginData)
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                showApiToast("Üdvözöljük!", data.success);
+                setTimeout(() => window.location.href = data.redirect, 1000);
+            } else {
+                showApiToast("Hiba", data.error, true);
+            }
+        });
+    });
+}
+// --- 5. VOUCHER VÁSÁRLÁS ÉS ELŐNÉZET (STABILIZÁLT) ---
+const voucherForm = document.getElementById('voucherForm');
+
+if (voucherForm) {
+    console.log("Voucher form detektálva, eseményfigyelő aktív."); // Ez látszódjon a konzolon betöltéskor
+
+    voucherForm.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        console.log("Voucher beküldés elindítva..."); 
+
+        const submitBtn = this.querySelector('button[type="submit"]');
+        if (!submitBtn) return;
+
+        const originalBtnText = submitBtn.innerHTML;
+        
+        // Gomb vizuális visszajelzése
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<i class="fa-solid fa-leaf fa-spin me-2"></i> Feldolgozás...';
+
+        try {
+            const fd = new FormData(this);
+            const data = {
+                recipient: fd.get('v_recipient'),
+                amount:    fd.get('v_amount'),
+                email:     fd.get('v_buyer_email'),
+                tel:       fd.get('v_buyer_tel')
+            };
+
+            const response = await fetch('api.php?request=vouchers', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            });
+
+            if (!response.ok) throw new Error("Szerver hiba: " + response.status);
+
+            const result = await response.json();
+
+            if (result.success) {
+                showApiToast("Sikeres vásárlás!", "Kód: " + result.code);
+                this.reset();
+                // Előnézet visszaállítása (ha vannak ilyen elemeid)
+                if(document.getElementById('p-name')) document.getElementById('p-name').innerText = "VENDÉGÜNK NEVE";
+                if(document.getElementById('p-amount')) document.getElementById('p-amount').innerText = "10 000 Ft";
+            } else {
+                showApiToast("Hiba", result.error || "Ismeretlen hiba", true);
+            }
+        } catch (err) {
+            console.error("Voucher API Hiba:", err);
+            showApiToast("Hiba", "Hálózati hiba: " + err.message, true);
+        } finally {
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = originalBtnText;
+        }
+    });
+} else {
+    console.error("Hiba: Nem található #voucherForm az oldalon!");
+}
+function toggleTheme() {
+    const isDark = document.body.classList.toggle('dark-theme');
+    localStorage.setItem('theme', isDark ? 'dark' : 'light');
+    console.log("Téma váltva:", isDark ? "Sötét" : "Világos");
+}
+
+// Ezt minden fájlba (index.php, user.php, login.php) tedd be a script részbe:
+(function() {
+    if (localStorage.getItem('theme') === 'dark') {
+        document.body.classList.add('dark-theme');
+    }
+})();
 </script>
 <?php include '../config/footer.php'; ?>
 </body>

@@ -1,30 +1,58 @@
 <?php
+require_once '../config/database.php';
 session_start();
+require '../PHPMailer-master/src/Exception.php';
+require '../PHPMailer-master/src/PHPMailer.php';
+require '../PHPMailer-master/src/SMTP.php';
 
-// --- 1. ADATBÁZIS KAPCSOLAT ---
-try {
-    $pdo = new PDO('mysql:host=localhost;dbname=vizsgaremek;charset=utf8mb4', 'root', '');
-    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-} catch (PDOException $e) {
-    die('Adatbázis hiba!');
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\Exception;
+
+// E-mail küldő függvény
+function sendWelcomeEmail($toEmail, $username) {
+    $mail = new PHPMailer(true);
+    try {
+        $mail->isSMTP();
+        $mail->Host       = 'smtp.gmail.com';
+        $mail->SMTPAuth   = true;
+        $mail->Username   = 'abmasszazsinfo@gmail.com'; 
+        $mail->Password   = 'krfqcyiytksxjcz'; 
+        $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
+        $mail->Port       = 587;
+        $mail->CharSet    = 'UTF-8';
+
+        $mail->setFrom('abmasszazsinfo@gmail.com', 'AB Masszázs'); // Itt javítva az egyezőség miatt
+        $mail->addAddress($toEmail, $username);
+
+        $mail->isHTML(true);
+        $mail->Subject = 'Üdvözöljük az AB Masszázsnál!';
+        
+        $mail->Body = "
+        <div style='background-color: #fcfaf7; padding: 30px; font-family: sans-serif;'>
+            <div style='max-width: 600px; margin: 0 auto; background-color: #ffffff; border: 1px solid #e0d6c5; padding: 40px; text-align: center;'>
+                <h1 style='color: #463f3a; letter-spacing: 5px; font-weight: 300;'>ÜDVÖZÖLJÜK</h1>
+                <h2 style='color: #8a5a44; font-weight: 400;'>Kedves $username!</h2>
+                <p style='color: #666; line-height: 1.6;'>Sikeresen létrehozta profilját az AB Masszázs rendszerében.</p>
+                <div style='margin-top: 30px;'>
+                    <a href='http://localhost/login.php' style='background-color: #463f3a; color: white; padding: 15px 25px; text-decoration: none; border-radius: 50px; text-transform: uppercase; font-size: 12px; letter-spacing: 2px;'>Bejelentkezés</a>
+                </div>
+            </div>
+        </div>";
+
+        $mail->send();
+        return true;
+    } catch (Exception $e) {
+        return false;
+    }
 }
 
 $toast_msg = '';
 $toast_type = '';
 
-if (isset($_GET['error'])) {
-    $errors = ['1' => 'Hibás adatok!', '2' => 'A jelszavak nem egyeznek!', '3' => 'Foglalt név vagy email!', '5' => 'Hibás adatok!'];
-    $toast_msg = $errors[$_GET['error']] ?? 'Hiba történt!';
-    $toast_type = 'danger';
-}
-if (isset($_GET['success'])) {
-    $toast_msg = 'Sikeres regisztráció! Most már beléphetsz.';
-    $toast_type = 'success';
-}
-
 // --- 3. LOGIKA (POST) ---
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $action = $_POST['action'] ?? '';
+    
     if ($action === 'register') {
         $username = trim($_POST['reg_username']);
         $email = trim($_POST['reg_email']);
@@ -37,12 +65,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         try {
             $hashed = password_hash($password, PASSWORD_DEFAULT);
             $stmt = $pdo->prepare('INSERT INTO users (username, email, tel, password) VALUES (?, ?, ?, ?)');
-            $stmt->execute([$username, $email, $tel, $hashed]);
-            header('Location: login.php?success=1');
-            exit;
+            
+            if ($stmt->execute([$username, $email, $tel, $hashed])) {
+                // FONTOS: Előbb küldjük az e-mailt, CSAK UTÁNA irányítunk át!
+                sendWelcomeEmail($email, $username);
+                header('Location: login.php?success=1');
+                exit;
+            }
         } catch (PDOException $e) { header('Location: login.php?error=3'); exit; }
     }
     
+    // Login rész marad változatlan...
     if ($action === 'login') {
         $username = trim($_POST['username']);
         $password = $_POST['password'];
@@ -56,6 +89,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             exit;
         } else { header('Location: login.php?error=1'); exit; }
     }
+}
+
+// Üzenetek kezelése (az átirányítás után)
+if (isset($_GET['error'])) {
+    $errors = ['1' => 'Hibás adatok!', '2' => 'A jelszavak nem egyeznek!', '3' => 'Foglalt név vagy email!', '5' => 'Hibás adatok!'];
+    $toast_msg = $errors[$_GET['error']] ?? 'Hiba történt!';
+    $toast_type = 'danger';
+}
+if (isset($_GET['success'])) {
+    $toast_msg = 'Sikeres regisztráció! Most már beléphetsz.';
+    $toast_type = 'success';
 }
 ?>
 <!DOCTYPE html>
@@ -193,7 +237,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     document.getElementById('reg_tel').addEventListener('input', function(e) {
         let v = e.target.value.replace(/[^\d+]/g, '');
         if (!v.startsWith('+36')) v = '+36 ';
-        if (v.length > 13) v = v.substring(0, 13);
+        if (v.length > 12) v = v.substring(0, 12);
         e.target.value = v;
     });
 
@@ -220,12 +264,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     });
 
-    // 6. TAB FIX
+    // 6. TAB FIX - Módosítva
     window.onload = () => {
         const url = new URLSearchParams(window.location.search);
-        if (url.has('success') || (url.has('error') && url.get('error') !== '1')) {
+        // Ha hiba van (és nem login hiba), akkor mutassa a regisztrációt
+        if (url.has('error') && url.get('error') !== '1') {
             new bootstrap.Tab(document.querySelector('[data-bs-target="#tab-r"]')).show();
-        }
+        } 
+        // Ha success van, hagyd az alapértelmezett Belépés (tab-l) fülön
     };
 </script>
 </body>

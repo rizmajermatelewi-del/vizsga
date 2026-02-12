@@ -13,19 +13,19 @@
 
         <div class="collapse navbar-collapse" id="navContent">
             <ul class="navbar-nav ms-auto align-items-center">
-                <li class="nav-item"><a class="nav-link" href="index.php#philosophy">Filozófiánk</a></li>
-                <li class="nav-item"><a class="nav-link" href="index.php#services">Masszázsok</a></li>
-                <li class="nav-item"><a class="nav-link" href="index.php#masters">Mestereink</a></li>
-                <li class="nav-item"><a class="nav-link" href="index.php#vouchers">Ajándékkártya</a></li>
-                <li class="nav-item"><a class="nav-link" href="index.php#booking">Időpont</a></li>
-                <li class="nav-item"><a class="nav-link" href="index.php#contact">Kapcsolat</a></li>
-                
-                <li class="nav-item ms-lg-3">
-                    <button onclick="toggleTheme()" class="btn btn-link nav-link shadow-none p-0">
-                        <i class="fas fa-circle-half-stroke"></i>
-                    </button>
-                </li>
-
+    <li class="nav-item"><a class="nav-link" href="index.php#philosophy">Filozófiánk</a></li>
+    <li class="nav-item"><a class="nav-link" href="index.php#services">Masszázsok</a></li>
+    <li class="nav-item"><a class="nav-link" href="index.php#masters">Mestereink</a></li>
+    <li class="nav-item"><a class="nav-link" href="index.php#vouchers">Ajándékkártya</a></li>
+    <li class="nav-item"><a class="nav-link" href="index.php#booking">Időpont</a></li>
+    <li class="nav-item"><a class="nav-link" href="index.php#contact">Kapcsolat</a></li>
+    
+    <li class="nav-item ms-lg-3">
+        <button onclick="toggleTheme()" class="btn btn-link nav-link shadow-none p-0">
+            <i class="fas fa-circle-half-stroke"></i>
+        </button>
+    </li>
+    
                 <?php if(isset($_SESSION['user_id'])): ?>
                     <li class="nav-item ms-lg-3">
                         <a href="user.php" class="btn btn-dark btn-sm rounded-0 px-3 py-2 text-uppercase small">
@@ -48,7 +48,6 @@
 </nav>
 
 <style>
-    /* Kijelentkezés ikon speciális Japandi stílusa */
     .logout-special {
         font-size: 0.9rem !important;
         color: var(--j-text) !important;
@@ -58,7 +57,7 @@
     }
     .logout-special:hover {
         opacity: 1 !important;
-        color: #a35d5d !important; /* Enyhe vöröses tónus kilépéskor */
+        color: #a35d5d !important; 
         transform: translateX(3px) !important;
     }
     /* Aktív link finom jelzése */

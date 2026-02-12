@@ -2,7 +2,6 @@
 session_start();
 require_once "../config/database.php";
 
-// Admin ellenőrzés ide is kell!
 
 if (isset($_GET['id']) && isset($_GET['action'])) {
     $id = $_GET['id'];

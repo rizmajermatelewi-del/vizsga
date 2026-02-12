@@ -264,9 +264,19 @@ document.getElementById('ajaxForm').addEventListener('submit', function(e) {
     e.preventDefault();
     const toast = document.getElementById('successToast');
     
-    fetch('process_booking.php', {
-        method: 'POST',
-        body: new FormData(this)
+    // calendar.php vége felé a fetch rész:
+fetch('../public/api.php?request=bookings', {
+    method: 'POST',
+    headers: {
+        'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+        customer_name: document.getElementById('f_name').value,
+        service_id: document.getElementById('f_service').value,
+        booking_date: document.getElementById('f_date').value,
+        booking_time: document.getElementById('f_time').value
+    })
+})
     })
     .then(r => r.json())
     .then(data => {

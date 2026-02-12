@@ -93,7 +93,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_profile'])) {
 $today = date('Y-m-d');
 $upStmt = $pdo->prepare("SELECT b.*, s.name as s_name FROM bookings b 
                          JOIN services s ON b.service_id = s.id 
-                         WHERE (b.customer_name = ? OR b.phone = ?) AND b.booking_date >= ? 
+                         WHERE (b.customer_name = ? OR b.tel = ?) AND b.booking_date >= ? 
                          ORDER BY b.booking_date ASC");
 $upStmt->execute([$userData['username'], $userData['tel'], $today]);
 $upcoming = $upStmt->fetchAll(PDO::FETCH_ASSOC);
@@ -276,50 +276,44 @@ function formatPhoneNumber($tel) {
 <div class="modal fade" id="editModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-lg modal-dialog-centered">
         <div class="modal-content border-0 rounded-0">
-            <form method="POST">
+            <form id="profileEditForm"> 
                 <div class="modal-body p-5">
                     <h5 class="mb-4" style="font-family: 'Shippori Mincho', serif;">Profil módosítása</h5>
                     <div class="row g-3">
                         <div class="col-md-6">
                             <label class="small text-muted mb-1">Felhasználónév</label>
-                            <input type="text" name="username" class="form-control" value="<?= htmlspecialchars($userData['username']) ?>" required>
+                            <input type="text" id="edit_name" name="username" class="form-control" value="<?= htmlspecialchars($userData['username']) ?>" required>
                         </div>
                         <div class="col-md-6">
                             <label class="small text-muted mb-1">E-mail</label>
-                            <input type="email" name="email" class="form-control" value="<?= htmlspecialchars($userData['email']) ?>" required>
+                            <input type="email" id="edit_email" name="email" class="form-control" value="<?= htmlspecialchars($userData['email']) ?>" required>
                         </div>
                         <div class="col-md-12">
                             <label class="small text-muted mb-1">Telefonszám</label>
                             <div class="zen-field-group">
                                 <div class="d-flex align-items-center">
                                     <i class="fa-solid fa-phone-flip zen-icon-inline"></i>
-                                    <input type="tel" name="tel" id="edit_tel" class="zen-input-minimal" 
-                                           value="<?= htmlspecialchars(formatPhoneNumber($userData['tel'] ?? '+36')) ?>" maxlength="15">
+                                    <input type="tel" name="tel" id="edit_tel" class="zen-input-minimal" value="<?= htmlspecialchars(formatPhoneNumber($userData['tel'] ?? '+36')) ?>" maxlength="15">
                                 </div>
                             </div>
                         </div>
-                        
-                        <div class="col-12 text-center my-3 opacity-50 small italic">
-                            <i class="fa-solid fa-leaf me-1"></i> A jelszó mezőket csak módosítás esetén töltse ki.
-                        </div>
-
+                        <div class="col-12 text-center my-3">
+    <div style="font-size: 0.75rem; color: var(--j-gold); opacity: 0.8; font-style: italic; letter-spacing: 0.5px;">
+        <i class="fa-solid fa-leaf me-1"></i> 
+        A jelszó mezőket csak akkor töltse ki, ha meg szeretné változtatni jelenlegi jelszavát.
+    </div>
+</div>
                         <div class="col-md-6">
                             <label class="small text-muted mb-1">Új jelszó</label>
-                            <div class="position-relative">
-                                <input type="password" name="new_password" id="pass_main" class="form-control pass-input" placeholder="********">
-                                <i class="fa-regular fa-eye toggle-eye-icon" data-target="pass_main"></i>
-                            </div>
+                            <input type="password" id="new_password" class="form-control" placeholder="********">
                         </div>
                         <div class="col-md-6">
                             <label class="small text-muted mb-1">Megerősítés</label>
-                            <div class="position-relative">
-                                <input type="password" name="confirm_password" id="pass_confirm" class="form-control pass-input" placeholder="********">
-                                <i class="fa-regular fa-eye toggle-eye-icon" data-target="pass_confirm"></i>
-                            </div>
+                            <input type="password" id="confirm_password" class="form-control" placeholder="********">
                         </div>
 
                         <div class="col-12 text-center mt-5">
-                            <button type="submit" name="update_profile" class="btn-zen px-5 py-3">Változtatások mentése</button>
+                            <button type="submit" class="btn-zen px-5 py-3">Változtatások mentése</button>
                         </div>
                     </div>
                 </div>
@@ -332,6 +326,27 @@ function formatPhoneNumber($tel) {
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
+// 1. SEGÉDFÜGGVÉNY AZ API HÍVÁSOKHOZ
+async function apiCall(endpoint, data) {
+    try {
+        const response = await fetch(`api.php?request=${endpoint}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+        });
+        const result = await response.json();
+        if (result.error) {
+            alert(result.error);
+            return null;
+        }
+        return result;
+    } catch (e) {
+        console.error("Hiba történt:", e);
+        return null;
+    }
+}
+
+// 2. ENTER BILLENTYŰ KEZELÉSE
 function handleEnter(event) {
     if (event.key === "Enter") {
         event.preventDefault();
@@ -339,6 +354,7 @@ function handleEnter(event) {
     }
 }
 
+// 3. JELSZÓ SZEM IKONOK
 document.querySelectorAll('.toggle-eye-icon').forEach(eye => {
     eye.addEventListener('click', function() {
         const input = document.getElementById(this.getAttribute('data-target'));
@@ -352,6 +368,7 @@ document.querySelectorAll('.toggle-eye-icon').forEach(eye => {
     });
 });
 
+// 4. LEMONDÁS MEGERŐSÍTÉSE
 function confirmCancel(id, name, date) {
     document.getElementById('cancel_booking_id').value = id;
     document.getElementById('cancelTargetName').innerText = name;
@@ -360,32 +377,33 @@ function confirmCancel(id, name, date) {
     modal.show();
 }
 
+// 5. VOUCHER ELLENŐRZÉS (API ALAPON)
 function checkVoucher() {
+    const code = document.getElementById('v_code').value;
     const input = document.getElementById('v_code');
-    const code = input.value.trim();
     const card = document.getElementById('voucher-card');
-    if (!code) { 
-        input.classList.add('shake'); 
-        setTimeout(() => input.classList.remove('shake'), 400); 
-        return; 
-    }
 
-    fetch(`user.php?ajax_check_voucher=1&code=${code}`)
+    if (code.length < 5) return;
+
+    // Itt az api.php-t hívjuk meg
+    fetch(`api.php?request=vouchers_check&code=${code}`)
         .then(r => r.json())
         .then(data => {
+            input.classList.remove('is-valid', 'is-invalid', 'shake');
             if (data.valid) {
-                input.classList.remove('is-invalid');
+                input.classList.add('is-valid');
                 document.getElementById('v_amt').innerText = data.amount + ' Ft';
-                document.getElementById('v_exp').innerText = 'EXP: ' + data.expiry;
+                document.getElementById('v_exp').innerText = 'Lejárat: ' + data.expiry;
                 card.style.display = 'block';
             } else {
                 card.style.display = 'none';
                 input.classList.add('is-invalid', 'shake');
-                setTimeout(() => input.classList.remove('is-invalid', 'shake'), 2000);
+                setTimeout(() => input.classList.remove('shake'), 500);
             }
         });
 }
 
+// 6. TELEFONSZÁM FORMÁZÓ (ÉLŐBEN)
 const editTel = document.getElementById('edit_tel');
 if(editTel) {
     editTel.addEventListener('input', function(e) {
@@ -394,18 +412,43 @@ if(editTel) {
             if(v.startsWith('06')) v = '+36' + v.substring(2);
             else v = '+36' + v;
         }
-        
         let formatted = v;
         if (v.length > 3) formatted = v.substring(0, 3) + ' ' + v.substring(3, 5);
         if (v.length > 5) formatted += ' ' + v.substring(5, 8);
         if (v.length > 8) formatted += ' ' + v.substring(8, 12);
-        
         e.target.value = formatted.trim();
     });
+}
 
-    editTel.addEventListener('focus', function() {
-        if (this.value.trim() === '' || this.value === '+36') {
-            this.value = '+36 ';
+// 7. PROFIL FRISSÍTÉSE (JAPANDI AJAX MÓDSZER)
+const profileForm = document.getElementById('profileEditForm');
+if (profileForm) {
+    profileForm.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        const pass = document.getElementById('new_password').value;
+        const confirm = document.getElementById('confirm_password').value;
+
+        if (pass !== "" && pass !== confirm) {
+            alert("A két jelszó nem egyezik meg!");
+            return;
+        }
+
+        const data = {
+            username: document.getElementById('edit_name').value,
+            email: document.getElementById('edit_email').value,
+            tel: document.getElementById('edit_tel').value,
+            password: pass
+        };
+
+        const res = await apiCall('update_profile', data);
+        if (res) {
+            alert(res.success); 
+            // Frissítjük a nevet a kijelzőn azonnal
+            document.querySelector('h1').innerText = data.username;
+            // Bezárjuk a modalt
+            const modal = bootstrap.Modal.getInstance(document.getElementById('editModal'));
+            if(modal) modal.hide();
         }
     });
 }

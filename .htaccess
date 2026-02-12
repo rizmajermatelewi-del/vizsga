@@ -1,0 +1,8 @@
+RewriteEngine On
+
+# Ha a kért fájl vagy mappa fizikailag létezik, ne irányítsuk át
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+
+# Minden más kérést küldjünk az api.php-ra
+RewriteRule ^api/(.*)$ public/api.php?request=$1 [QSA,L]

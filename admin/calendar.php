@@ -6,8 +6,7 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') { header("Locati
 $month = isset($_GET['m']) ? (int)$_GET['m'] : date('m');
 $year = isset($_GET['y']) ? (int)$_GET['y'] : date('Y');
 
-$first_day = date('N', strtotime("$year-$month-01"));
-$days_in_month = cal_days_in_month(CAL_GREGORIAN, $month, $year);
+$first_day = date('N', strtotime("$year-$month-01"));$days_in_month = date('t', strtotime("$year-$month-01"));
 
 $stmt = $pdo->prepare("SELECT b.*, s.name as service_name FROM bookings b LEFT JOIN services s ON b.service_id = s.id WHERE MONTH(b.booking_date) = ? AND YEAR(b.booking_date) = ? ORDER BY b.booking_time ASC");
 $stmt->execute([$month, $year]);

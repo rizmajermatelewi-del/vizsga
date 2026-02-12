@@ -1,9 +1,9 @@
 <?php
 require_once '../config/database.php';
 session_start();
-require '../PHPMailer-master/src/Exception.php';
-require '../PHPMailer-master/src/PHPMailer.php';
-require '../PHPMailer-master/src/SMTP.php';
+require __DIR__ . '/../vendor/PHPMailer-master/src/Exception.php';
+require __DIR__ . '/../vendor/PHPMailer-master/src/PHPMailer.php';
+require __DIR__ . '/../vendor/PHPMailer-master/src/SMTP.php';
 
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
@@ -16,7 +16,7 @@ function sendWelcomeEmail($toEmail, $username) {
         $mail->Host       = 'smtp.gmail.com';
         $mail->SMTPAuth   = true;
         $mail->Username   = 'abmasszazsinfo@gmail.com'; 
-        $mail->Password   = 'krfqcyiytksxjcz'; 
+        $mail->Password   = 'bfhhqbgrarmakkxh'; 
         $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
         $mail->Port       = 587;
         $mail->CharSet    = 'UTF-8';
@@ -76,21 +76,34 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
     
     // Login rész marad változatlan...
-    if ($action === 'login') {
-        $username = trim($_POST['username']);
-        $password = $_POST['password'];
-        $stmt = $pdo->prepare('SELECT * FROM users WHERE username = ?');
-        $stmt->execute([$username]);
-        $user = $stmt->fetch();
-        if ($user && password_verify($password, $user['password'])) {
-            $_SESSION['user_id'] = $user['id'];
-            $_SESSION['user_name'] = $user['username'];
+if ($action === 'login') {
+    $username = trim($_POST['username']);
+    $password = $_POST['password'];
+
+    $stmt = $pdo->prepare('SELECT * FROM users WHERE username = ?');
+    $stmt->execute([$username]);
+    $user = $stmt->fetch();
+
+    if ($user && password_verify($password, $user['password'])) {
+        // Munkamenet adatok mentése
+        $_SESSION['user_id'] = $user['id'];
+        $_SESSION['user_name'] = $user['username'];
+        $_SESSION['role'] = $user['role']; // Érdemes elmenteni a szerepkört is!
+
+        // Szerepkör alapú átirányítás
+        if ($user['role'] === 'admin') {
+            header('Location: ../admin/dashboard.php');
+        } else {
             header('Location: index.php');
-            exit;
-        } else { header('Location: login.php?error=1'); exit; }
+        }
+        exit;
+    } else {
+        header('Location: login.php?error=1');
+        exit;
     }
 }
 
+}
 // Üzenetek kezelése (az átirányítás után)
 if (isset($_GET['error'])) {
     $errors = ['1' => 'Hibás adatok!', '2' => 'A jelszavak nem egyeznek!', '3' => 'Foglalt név vagy email!', '5' => 'Hibás adatok!'];

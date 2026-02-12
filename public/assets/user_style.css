@@ -1,89 +1,142 @@
 /* AB MASSZÁZS - Unified Japandi Style CSS
-    Version: 3.0 (2026) - Final Zen Edition
+   Version: 4.0 (2026) - Improved Accessibility Edition
+   Jó kontrasz & olvashatóság!
 */
 
 @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&family=Shippori+Mincho:wght@400;700&display=swap');
 
+/* === VILÁGOS MÓD === */
 :root {
-    --j-bg: #fdfcf9;
-    --j-text: #1a1a1a;
-    --j-accent: #72613d;
-    --j-border: #8c8c8c;
-    --j-card: #ffffff;
-    --j-input: #ffffff;
-    --j-gold: #967435;
-    --j-nav: #ffffff;
+    --j-bg: #fdfcf9;          /* Finom világos háttér */
+    --j-text: #1a1a1a;        /* Sötét szöveg */
+    --j-accent: #5a4a2a;      /* Sötétebb barna */
+    --j-border: #3a3a3a;      /* Sötét szegély */
+    --j-card: #ffffff;        /* Fehér kártyák */
+    --j-input: #ffffff;       /* Fehér inputok */
+    --j-gold: #8b6f47;        /* Arany - sötétebb */
+    --j-nav: #ffffff;         /* Fehér navbar */
+    --j-muted: #555555;       /* Halvány szöveg */
+    --j-placeholder: #888888; /* Placeholder */
     --transition: all 0.3s ease;
 }
 
+/* === SÖTÉT MÓD === */
 body.dark-theme {
-    --j-bg: #000000;
-    --j-text: #ffffff;
-    --j-accent: #e5c07b;
-    --j-border: #666666;
-    --j-card: #121212;
-    --j-input: #000000;
-    --j-gold: #ffcc00;
-    --j-nav: #000000;
+    --j-bg: #0f0f0f;          /* Nagyon sötét, de nem fekete */
+    --j-text: #f5f5f5;        /* Nagyon világos fehér */
+    --j-accent: #e8d4a8;      /* Világos barna/arany */
+    --j-border: #555555;      /* Világosabb szegély */
+    --j-card: #1a1a1a;        /* Sötét kártyák */
+    --j-input: #242424;       /* Sötét inputok */
+    --j-gold: #ffd700;        /* Világos arany */
+    --j-nav: #0f0f0f;         /* Sötét navbar */
+    --j-muted: #cccccc;       /* Világos halvány */
+    --j-placeholder: #999999; /* Világos placeholder */
 }
 
-/* --- Alapbeállítások --- */
+/* === ALAPBEÁLLÍTÁSOK === */
+* {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
 body {
     background-color: var(--j-bg) !important;
     color: var(--j-text) !important;
     font-family: 'Plus Jakarta Sans', sans-serif !important;
     margin: 0;
-    -webkit-font-smoothing: antialiased;
+    padding: 0;
+    line-height: 1.6;
 }
 
-h1, h2, h3, h4, h5, h6, p, span, label, i, strong, b,
-.nav-link, .brand-ab, .brand-subtitle, .text-dark, .navbar-brand {
+/* === SZÖVEGEK (h1-h6, p, span, stb.) === */
+h1, h2, h3, h4, h5, h6 {
+    color: var(--j-text) !important;
+    font-weight: 600;
+}
+
+p, span, label, div, li, a {
     color: var(--j-text) !important;
 }
 
-/* --- Navigáció (Csíkmentesítve) --- */
+/* Halvány szöveg - de még olvasható! */
+.text-muted, .text-secondary {
+    color: var(--j-muted) !important;
+}
+
+/* === LINKEK === */
+a {
+    color: var(--j-accent) !important;
+    text-decoration: none;
+    transition: var(--transition);
+}
+
+a:hover {
+    color: var(--j-gold) !important;
+    text-decoration: underline;
+}
+
+/* === NAVIGÁCIÓ === */
 .navbar {
     background-color: var(--j-nav) !important;
     border-bottom: 2px solid var(--j-border) !important;
     padding: 1rem 0 !important;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
+.navbar-brand {
+    color: var(--j-text) !important;
+    font-weight: 800;
+    font-size: 1.5rem;
+}
+
+.nav-link {
+    color: var(--j-text) !important;
+    font-weight: 600;
+    transition: var(--transition);
+    opacity: 0.8;
+}
+
+.nav-link:hover {
+    color: var(--j-gold) !important;
+    opacity: 1;
+}
+
+/* === FÜLEK (TAB) === */
 #zenTab {
     border: none !important;
     margin-bottom: 2rem !important;
 }
 
-/* --- NAVIGÁCIÓ HOVER EFFEKT --- */
 #zenTab .nav-link {
     border: none !important;
     background: none !important;
     box-shadow: none !important;
-    padding-bottom: 10px;
+    padding-bottom: 12px;
     position: relative;
-    font-weight: 600;
+    font-weight: 700;
     letter-spacing: 1px;
-    opacity: 0.5; /* Alap állapotban kicsit halványabb */
+    color: var(--j-text) !important;
+    opacity: 0.6;
     transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1) !important;
 }
 
-/* Hover állapot: felerősödik a szín és megjelenik egy finom jelzés */
 #zenTab .nav-link:hover {
     opacity: 1;
     color: var(--j-gold) !important;
-    transform: translateY(-2px); /* Minimális emelkedés */
+    transform: translateY(-2px);
 }
 
-/* Egy nagyon vékony arany vonal, ami hoverre középről kihúzódik */
+/* Aláhúzás effekt */
 #zenTab .nav-link::after {
     content: '';
     position: absolute;
     bottom: 0;
     left: 50%;
     width: 0;
-    height: 1px;
+    height: 2px;
     background-color: var(--j-gold);
     transition: all 0.4s ease;
-    display: block !important; /* Visszakapcsoljuk, de 0 szélességgel */
 }
 
 #zenTab .nav-link:hover::after {
@@ -91,7 +144,6 @@ h1, h2, h3, h4, h5, h6, p, span, label, i, strong, b,
     width: 60%;
 }
 
-/* Az aktív fül maradjon fixen erős és jelölt */
 #zenTab .nav-link.active {
     opacity: 1;
     color: var(--j-text) !important;
@@ -100,11 +152,10 @@ h1, h2, h3, h4, h5, h6, p, span, label, i, strong, b,
 #zenTab .nav-link.active::after {
     left: 20%;
     width: 60%;
-    height: 2px; /* Az aktív kicsit hangsúlyosabb */
-    display: block !important;
+    height: 3px;
 }
 
-/* --- Gombok --- */
+/* === GOMBOK === */
 .btn-dark, .btn-zen, .btn-zen-gold {
     background-color: var(--j-text) !important;
     color: var(--j-bg) !important;
@@ -115,108 +166,255 @@ h1, h2, h3, h4, h5, h6, p, span, label, i, strong, b,
     text-transform: uppercase;
     letter-spacing: 2px;
     transition: var(--transition);
+    cursor: pointer;
 }
 
 .btn-dark:hover, .btn-zen:hover, .btn-zen-gold:hover {
-    background-color: var(--j-accent) !important;
-    border-color: var(--j-accent) !important;
-    color: #ffffff !important;
+    background-color: var(--j-gold) !important;
+    border-color: var(--j-gold) !important;
+    color: var(--j-bg) !important;
+    transform: translateY(-2px);
 }
 
-/* --- Formok és Minimalista Design --- */
+.btn-dark:active, .btn-zen:active, .btn-zen-gold:active {
+    transform: translateY(0);
+}
+
+/* === FORMOK === */
 .form-control, .form-select, .zen-input {
     background-color: var(--j-input) !important;
     border: 2px solid var(--j-border) !important;
     color: var(--j-text) !important;
     border-radius: 0 !important;
     padding: 12px !important;
+    font-size: 1rem;
+    transition: var(--transition);
 }
 
-.zen-form-card {
-    background: transparent !important;
-    border: none !important;
-    box-shadow: none !important;
-    padding: 0 !important;
+.form-control:focus, .form-select:focus, .zen-input:focus {
+    background-color: var(--j-input) !important;
+    color: var(--j-text) !important;
+    border-color: var(--j-gold) !important;
+    box-shadow: 0 0 0 3px rgba(139, 111, 71, 0.1) !important;
+    outline: none;
 }
 
-.user-card, .z-card, .card, .modal-content {
+.form-control::placeholder, .zen-input::placeholder {
+    color: var(--j-placeholder) !important;
+    opacity: 0.7;
+}
+
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus {
+    -webkit-box-shadow: 0 0 0 1000px var(--j-input) inset !important;
+    -webkit-text-fill-color: var(--j-text) !important;
+}
+
+/* Label szövegek - legyen sötét */
+label {
+    color: var(--j-text) !important;
+    font-weight: 600;
+}
+
+.small.text-muted {
+    color: var(--j-muted) !important;
+}
+
+/* === KÁRTYÁK === */
+.card, .user-card, .z-card, .modal-content, .zen-form-card {
     background-color: var(--j-card) !important;
     border: 2px solid var(--j-border) !important;
     border-radius: 0 !important;
+    color: var(--j-text) !important;
+}
+
+.card-body, .user-card, .z-card {
     padding: 2rem;
 }
 
-/* --- CSILLAG ÉRTÉKELŐ (Balról jobbra, dőléssel) --- */
+/* === CSILLAG ÉRTÉKELŐ === */
 .star-rating-wrapper {
     display: block;
-    direction: ltr; /* Balról kezdődik */
     text-align: center;
-    padding: 15px 0;
+    padding: 20px 0;
 }
 
 .star-rating {
     display: inline-flex;
-    flex-direction: row-reverse; /* A CSS logika miatt ez kell a balról jobbra színezéshez */
+    flex-direction: row-reverse;
+    gap: 10px;
 }
 
 .star-rating input {
     display: none;
 }
 
-.star-rating label, 
-.star-rating label i {
+.star-rating label {
     font-size: 2.5rem !important;
-    color: #e8e4de !important;
-    -webkit-text-fill-color: #e8e4de !important;
+    color: #d4af37 !important;
     cursor: pointer;
-    margin: 0 5px;
-    transition: transform 0.3s ease, color 0.2s ease !important;
+    transition: transform 0.3s ease, filter 0.2s ease !important;
+    user-select: none;
 }
 
-/* Kijelölési logika */
+.star-rating label i {
+    color: #d4af37 !important;
+}
+
 .star-rating label:hover,
 .star-rating label:hover ~ label,
-.star-rating input:checked ~ label,
-.star-rating label:hover i,
+.star-rating input:checked ~ label {
+    color: #ffd700 !important;
+    filter: brightness(1.2);
+    transform: scale(1.15) rotate(-10deg);
+}
+
+.star-rating label i:hover,
 .star-rating label:hover ~ label i,
 .star-rating input:checked ~ label i {
-    color: var(--j-gold) !important;
-    -webkit-text-fill-color: var(--j-gold) !important;
+    color: #ffd700 !important;
 }
 
-/* Mozgás: Balra dőlés és nagyítás */
-.star-rating label:hover {
-    transform: scale(1.2) rotate(-10deg);
+/* === TEXTAREA === */
+textarea {
+    resize: vertical;
+    min-height: 120px;
 }
 
-/* --- Voucher & Egyéb --- */
+/* === UTALVÁNY ELŐNÉZET === */
 #voucher-preview {
     border: 3px dashed var(--j-accent) !important;
     background: var(--j-card) !important;
+    padding: 2rem;
+    border-radius: 0;
 }
 
 #p-amount {
     color: var(--j-gold) !important;
     font-weight: 700;
+    font-size: 2.5rem;
 }
 
+#p-name {
+    color: var(--j-muted) !important;
+}
+
+/* === FOOTER === */
 footer {
     background-color: var(--j-bg) !important;
     border-top: 2px solid var(--j-border) !important;
     padding: 50px 0 !important;
+    color: var(--j-text) !important;
 }
 
-/* --- Görgetősáv --- */
+footer p, footer a, footer span {
+    color: var(--j-text) !important;
+}
+
+/* === SCROLLBAR (Sötét módban) === */
 body.dark-theme::-webkit-scrollbar {
-    width: 10px;
-    background: #000;
-}
-body.dark-theme::-webkit-scrollbar-thumb {
-    background: #444;
-    border: 1px solid #666;
+    width: 12px;
 }
 
+body.dark-theme::-webkit-scrollbar-track {
+    background: #0f0f0f;
+}
+
+body.dark-theme::-webkit-scrollbar-thumb {
+    background: #555555;
+    border-radius: 6px;
+}
+
+body.dark-theme::-webkit-scrollbar-thumb:hover {
+    background: #777777;
+}
+
+/* === MOBILE === */
 @media (max-width: 768px) {
-    .brand-ab { font-size: 1.5rem; }
-    .star-rating label { font-size: 2rem !important; }
+    .brand-ab {
+        font-size: 1.5rem;
+    }
+
+    .star-rating label {
+        font-size: 2rem !important;
+    }
+
+    .btn-dark, .btn-zen, .btn-zen-gold {
+        padding: 12px 24px !important;
+        font-size: 0.9rem;
+    }
+}
+
+/* === FÓKUSZ & ACCESSIBILITY === */
+*:focus {
+    outline: 2px solid var(--j-gold);
+    outline-offset: 2px;
+}
+
+button:focus-visible, a:focus-visible, input:focus-visible {
+    outline: 2px solid var(--j-gold);
+    outline-offset: 2px;
+}
+
+/* === HÉRO SZEKCIÓ === */
+.hero-zen {
+    color: #ffffff;
+}
+
+.hero-zen h1, .hero-zen h2, .hero-zen p {
+    color: #ffffff !important;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+/* === REVIEW KÁRTYÁK === */
+.review-card {
+    background-color: var(--j-card) !important;
+    border: 2px solid var(--j-border) !important;
+    transition: transform 0.4s ease, box-shadow 0.4s ease;
+}
+
+.review-card p, .review-card h6, .review-card small {
+    color: var(--j-text) !important;
+}
+
+.review-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15) !important;
+}
+
+/* === DIVIDER === */
+hr {
+    border-color: var(--j-border) !important;
+    opacity: 0.3;
+}
+
+/* === INFO LABEL === */
+.info-label {
+    color: var(--j-gold) !important;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    font-weight: 800;
+}
+
+.section-label {
+    color: var(--j-gold) !important;
+}
+
+/* === BG CLASSES === */
+.bg-accent-soft {
+    background-color: rgba(90, 74, 42, 0.05) !important;
+}
+
+body.dark-theme .bg-accent-soft {
+    background-color: rgba(232, 212, 168, 0.08) !important;
+}
+
+.bg-light-zen {
+    background-color: var(--j-bg) !important;
+}
+
+.bg-white {
+    background-color: var(--j-card) !important;
 }

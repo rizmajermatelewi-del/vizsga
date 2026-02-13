@@ -57,6 +57,7 @@ $services_list = $pdo->query("SELECT * FROM services ORDER BY name ASC")->fetchA
     --j-gold: #8b6f47;        
     --j-accent: #d4af37;      
     --j-placeholder: #a0a0a0;
+    --j-boxcolor: #fff;
 }
 
 body.dark-theme {
@@ -69,6 +70,7 @@ body.dark-theme {
     --j-gold: #e8d4a8;        
     --j-accent: #f1c40f;
     --j-placeholder: #666666;
+    --j-boxcolor: #000000ff;
 }
 
 
@@ -521,7 +523,6 @@ body {
             border-color: var(--j-gold);
             color: var(--j-gold);
         }
-
        
         .bg-accent-soft {
             background-color: rgba(90, 74, 42, 0.05);
@@ -646,6 +647,8 @@ body {
                 font-size: 0.8rem;
             }
         }
+
+        
     </style>
 </head>
 <body class="japandi-bg">
@@ -658,7 +661,7 @@ body {
             <a href="calendar.php" class="stat-card-link text-decoration-none">
                 <div class="j-card h-100">
                     <p class="small text-muted text-uppercase mb-2" style="letter-spacing: 2px;">Mai foglalások</p>
-                    <span class="stat-num d-block display-4 fw-bold" style="font-family: 'Shippori Mincho', serif; color: var(--j-dark);"><?= $bookings_today ?></span>
+                    <span class="stat-num d-block display-4 fw-bold" style="font-family: 'Shippori Mincho', serif; color: var(--j-muted);"><?= $bookings_today ?></span>
                 </div>
             </a>
         </div>
@@ -666,7 +669,7 @@ body {
             <a href="vouchers.php" class="stat-card-link text-decoration-none">
                 <div class="j-card h-100">
                     <p class="small text-muted text-uppercase mb-2" style="letter-spacing: 2px;">Aktív utalványok</p>
-                    <span class="stat-num d-block display-4 fw-bold" style="font-family: 'Shippori Mincho', serif; color: var(--j-dark);"><?= $active_vouchers ?></span>
+                    <span class="stat-num d-block display-4 fw-bold" style="font-family: 'Shippori Mincho', serif; color: var(--j-muted);"><?= $active_vouchers ?></span>
                 </div>
             </a>
         </div>
@@ -674,7 +677,7 @@ body {
             <a href="services.php" class="stat-card-link text-decoration-none">
                 <div class="j-card h-100">
                     <p class="small text-muted text-uppercase mb-2" style="letter-spacing: 2px;">Szolgáltatások</p>
-                    <span class="stat-num d-block display-4 fw-bold" style="font-family: 'Shippori Mincho', serif; color: var(--j-dark);"><?= $services_count ?></span>
+                    <span class="stat-num d-block display-4 fw-bold" style="font-family: 'Shippori Mincho', serif; color: var(--j-muted);"><?= $services_count ?></span>
                 </div>
             </a>
         </div>
@@ -689,8 +692,8 @@ body {
         </div>
     </div>
 
-    <div class="j-card p-0 overflow-hidden shadow-sm border-0 bg-white">
-        <div class="p-4 border-bottom d-flex justify-content-between align-items-center" style="background: var(--j-soft);">
+    <div class="j-card p-0 overflow-hidden shadow-sm border-0"  style="background: transparent;">
+        <div class="p-4 border-bottom d-flex justify-content-between align-items-center" style="background: transparent;">
             <h5 class="m-0 brand fw-bold" style="color: var(--j-accent); letter-spacing: 2px;">ÜTEMEZÉS</h5>
             <span class="badge rounded-pill px-3 py-2" style="background: var(--j-white); color: var(--j-dark); border: 1px solid var(--j-border); font-size: 0.6rem; letter-spacing: 1px;">KÖVETKEZŐ 50 BEJEGYZÉS</span>
         </div>
@@ -703,7 +706,7 @@ body {
                     $current_date = $b['booking_date'];
                     $label = ($current_date == date('Y-m-d')) ? "MAI NAP" : date('Y. m. d.', strtotime($current_date));
             ?>
-                <div class="day-header" style="background: var(--j-soft); padding: 12px 25px; font-size: 0.7rem; font-weight: 700; letter-spacing: 2px; color: var(--j-accent); border-bottom: 1px solid var(--j-border); border-top: 1px solid var(--j-border);">
+                <div class="day-header" style="background: transparent; padding: 12px 25px; font-size: 0.7rem; font-weight: 700; letter-spacing: 2px; color: var(--j-accent); border-bottom: 1px solid var(--j-border); border-top: 1px solid var(--j-border);">
                     <?= $label ?>
                 </div>
             <?php endif; ?>

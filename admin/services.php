@@ -88,7 +88,7 @@ $services = $pdo->query("SELECT * FROM services ORDER BY name ASC")->fetchAll();
 }
 
 .service-card {
-    background: var(--j-white);
+    /*background: var(--j-white);*/
     border: 1px solid var(--j-border);
     padding: 3rem 2.5rem !important;
     height: 100%;
@@ -121,19 +121,23 @@ $services = $pdo->query("SELECT * FROM services ORDER BY name ASC")->fetchAll();
 .price-tag {
     font-weight: 700;
     font-size: 1.1rem;
-    color: var(--j-dark);
+    color: var(--j-text);
 }
 
 .edit-circle {
     width: 32px;
     height: 32px;
-    background: var(--j-soft);
+    /*background: var(--j-soft);*/
     color: var(--j-accent);
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
     transition: 0.3s;
+}
+
+.text-muted {
+    color: var(--j-text) !important;
 }
 
 .service-card:hover .edit-circle {

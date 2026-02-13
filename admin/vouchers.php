@@ -42,7 +42,7 @@ $vouchers = $pdo->query("SELECT code, amount, status FROM vouchers ORDER BY crea
                         <span class="code-box"><?= htmlspecialchars($v['code']) ?></span>
                     </td>
                     <td data-label="ÉRTÉK">
-                        <span class="fw-bold" style="color: var(--j-dark);"><?= number_format($v['amount'], 0, ',', ' ') ?> Ft</span>
+                        <span class="fw-bold" style="color: var(--j-text);"><?= number_format($v['amount'], 0, ',', ' ') ?> Ft</span>
                     </td>
                     <td class="text-end pe-4" data-label="ÁLLAPOT">
                         <?php if($v['status'] == 'active'): ?>
@@ -67,6 +67,8 @@ $vouchers = $pdo->query("SELECT code, amount, status FROM vouchers ORDER BY crea
 .admin-table {
     border-collapse: separate;
     border-spacing: 0 10px;
+    --bs-table-bg: transparent !important;
+    --bs-table-color: transparent !important;
 }
 
 .admin-table thead th {
@@ -80,7 +82,7 @@ $vouchers = $pdo->query("SELECT code, amount, status FROM vouchers ORDER BY crea
 }
 
 .voucher-row {
-    background: var(--j-white);
+    /*background: var(--j-white);*/
     transition: background 0.3s ease;
 }
 
@@ -97,10 +99,10 @@ $vouchers = $pdo->query("SELECT code, amount, status FROM vouchers ORDER BY crea
 .code-box {
     font-family: 'Monaco', monospace;
     font-size: 0.9rem;
-    color: var(--j-dark);
+    color: var(--j-text);
     letter-spacing: 1px;
     padding: 4px 8px;
-    background: var(--j-soft);
+    background: var(--j-border);
 }
 
 
@@ -111,6 +113,10 @@ $vouchers = $pdo->query("SELECT code, amount, status FROM vouchers ORDER BY crea
     padding: 5px 12px;
     display: inline-flex;
     align-items: center;
+}
+
+.text-muted {
+    color: var(--j-text-muted) !important;
 }
 
 .status-indicator.active { color: #2f855a; }

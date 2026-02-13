@@ -6,7 +6,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $v_id = $_SESSION['user_id'] ?? null;
     $s_id = $_POST['service_id'] ?? null;
     
-    // Ezeknek az űrlapban is szerepelniük kell!
+
     $name = $_POST['name'] ?? ''; 
     $email = $_POST['email'] ?? ''; 
     $phone = $_POST['phone'] ?? ''; 

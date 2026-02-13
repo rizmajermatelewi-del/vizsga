@@ -1,7 +1,7 @@
 <?php
 require_once "../config/database.php"; 
 session_start();
-// Admin jogosultság ellenőrzése (biztonsági okokból érdemes ide is betenni)
+
 if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') { header("Location: ../public/login.php?error=4"); exit; }
 
 $services = $pdo->query("SELECT * FROM services ORDER BY name ASC")->fetchAll();
@@ -11,8 +11,9 @@ $services = $pdo->query("SELECT * FROM services ORDER BY name ASC")->fetchAll();
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AB MASSZÁZS | Szolgáltatások</title>
+    <title>AB MASSZÁZS</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600&family=Shippori+Mincho:wght@500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="assets/admin_style.css">
 </head>
@@ -85,7 +86,7 @@ $services = $pdo->query("SELECT * FROM services ORDER BY name ASC")->fetchAll();
     font-weight: 300;
     margin-bottom: 30px !important;
 }
-/* SZOLGÁLTATÁS KÁRTYÁK */
+
 .service-card {
     background: var(--j-white);
     border: 1px solid var(--j-border);
@@ -94,6 +95,7 @@ $services = $pdo->query("SELECT * FROM services ORDER BY name ASC")->fetchAll();
     cursor: pointer;
     transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
     position: relative;
+    color:black;
 }
 
 .service-card:hover {
@@ -139,7 +141,7 @@ $services = $pdo->query("SELECT * FROM services ORDER BY name ASC")->fetchAll();
     color: var(--j-white);
 }
 
-/* FORM STÍLUSOK */
+
 .form-control {
     border-radius: 0;
     border: 1px solid var(--j-border);
@@ -151,10 +153,11 @@ $services = $pdo->query("SELECT * FROM services ORDER BY name ASC")->fetchAll();
     box-shadow: none;
 }
 .header-spacer {
-    height: 100px; /* Az eddigi 65px helyett */
+    height: 100px;
 }
 </style>
 
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
 let serviceModal;

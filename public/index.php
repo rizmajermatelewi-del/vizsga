@@ -2,7 +2,7 @@
 session_start();
 require_once "../config/database.php";
 
-// Szolgáltatások lekérése
+
 $stmt = $pdo->query("SELECT * FROM services ORDER BY name ASC");
 $services = $stmt->fetchAll();
 ?>
@@ -19,10 +19,9 @@ $services = $stmt->fetchAll();
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <link rel="stylesheet" href="assets/user_style.css">
 <style>
-    html {
-    scroll-behavior: smooth;
-}
-            /* === SZEKCIÓ KÖZÖS STÍLUS === */
+        html {
+        scroll-behavior: smooth;
+        }
         section {
             padding: 80px 0;
         }
@@ -56,7 +55,6 @@ $services = $stmt->fetchAll();
             margin-top: 1rem;
         }
 
-        /* === HERO SZEKCIÓ === */
         .hero-zen {
             position: relative;
             background-image: url('https://images.unsplash.com/photo-1540555700478-4be289fbecef?q=80&w=2070');
@@ -114,7 +112,7 @@ $services = $stmt->fetchAll();
             color: #000;
         }
 
-        /* === SCROLL INDICATOR === */
+
         .scroll-indicator {
             position: absolute;
             bottom: 30px;
@@ -140,8 +138,6 @@ $services = $stmt->fetchAll();
                 opacity: 0;
             }
         }
-
-        /* === DIVIDER === */
         .divider-zen {
             width: 30px;
             height: 2px;
@@ -149,8 +145,6 @@ $services = $stmt->fetchAll();
             opacity: 0.5;
             margin: 0 auto;
         }
-
-        /* === SERVICE CARD === */
         .service-card {
             background: var(--j-card);
             border: 2px solid var(--j-border);
@@ -204,7 +198,6 @@ $services = $stmt->fetchAll();
             transform: translateX(5px);
         }
 
-        /* === MASTER CARD === */
         .master-card {
             text-align: center;
             transition: all 0.3s ease;
@@ -246,7 +239,6 @@ $services = $stmt->fetchAll();
             margin-top: 0.5rem;
         }
 
-        /* === REVIEW CARD === */
         .review-card {
             transition: transform 0.4s ease, box-shadow 0.4s ease;
             border-radius: 0;
@@ -265,7 +257,6 @@ $services = $stmt->fetchAll();
             color: var(--j-gold) !important;
         }
 
-        /* === VOUCHER SECTION === */
         #voucher-preview {
             border: 3px dashed var(--j-accent) !important;
             background: var(--j-card) !important;
@@ -297,7 +288,6 @@ $services = $stmt->fetchAll();
             font-weight: 600;
         }
 
-        /* === CONTACT SECTION === */
         .contact-icon-box {
             width: 50px;
             height: 50px;
@@ -357,7 +347,7 @@ $services = $stmt->fetchAll();
             color: var(--j-gold) !important;
         }
 
-        /* === FORM STYLES === */
+       
         .form-control,
         .form-select {
             background: var(--j-card) !important;
@@ -387,7 +377,6 @@ $services = $stmt->fetchAll();
             margin-bottom: 0.5rem;
         }
 
-        /* === TAB BUTTON STYLES === */
         .tab-btn {
             background: transparent;
             border: 2px solid var(--j-border);
@@ -426,14 +415,12 @@ $services = $stmt->fetchAll();
             }
         }
 
-        /* === PHONE FORMAT INPUT === */
         .phone-format {
             font-family: 'Courier New', monospace;
             font-weight: 600;
             letter-spacing: 1px;
         }
 
-        /* === TIME GRID === */
         .time-grid {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
@@ -464,7 +451,6 @@ $services = $stmt->fetchAll();
             color: var(--j-gold);
         }
 
-        /* === BG CLASSES === */
         .bg-accent-soft {
             background-color: rgba(90, 74, 42, 0.05);
         }
@@ -477,7 +463,6 @@ $services = $stmt->fetchAll();
             background-color: var(--j-bg);
         }
 
-        /* === REVEAL ANIMATION === */
         .reveal {
             opacity: 0;
             transform: translateY(20px);
@@ -489,7 +474,6 @@ $services = $stmt->fetchAll();
             transform: translateY(0);
         }
 
-        /* === PRELOADER === */
         #zen-preloader {
             position: fixed;
             top: 0;
@@ -527,8 +511,6 @@ $services = $stmt->fetchAll();
                 transform: rotate(360deg);
             }
         }
-
-        /* === BUTTON STYLES === */
         .btn-dark {
             background: var(--j-text) !important;
             border: 2px solid var(--j-text) !important;
@@ -546,8 +528,6 @@ $services = $stmt->fetchAll();
             border-color: var(--j-gold) !important;
             color: var(--j-bg) !important;
         }
-
-        /* === RESPONSIVE === */
         @media (max-width: 768px) {
             section {
                 padding: 50px 0;
@@ -587,18 +567,65 @@ $services = $stmt->fetchAll();
                 padding: 10px 16px;
                 font-size: 0.8rem;
             }
-        }
+            .master-badge {
+                display: inline-block;
+                padding: 10px 20px;
+                background: #1e293b;
+                color: white;
+                border-radius: 12px;
+                cursor: pointer;
+                font-weight: 500;
+                transition: 0.3s;
+                user-select: none;
+            }
+            .fancy-pop-menu {
+                display: none;
+                position: fixed;
+                width: 280px;
+                background: var(--glass-bg);
+                backdrop-filter: blur(15px) saturate(180%);
+                -webkit-backdrop-filter: blur(15px) saturate(180%);
+                border: 1px solid rgba(255, 255, 255, 0.3);
+                border-radius: 20px;
+                padding: 20px;
+                box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+                z-index: 1000;
+                opacity: 0;
+                transform: scale(0.8) translateY(-10px);
+                transition: opacity 0.2s, transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+                pointer-events: none;
+            }
+
+            .fancy-pop-menu.active {
+                display: block;
+                opacity: 1;
+                transform: scale(1) translateY(0);
+                pointer-events: auto;
+            }
+            .menu-arrow {
+                position: absolute;
+                top: -8px;
+                left: 20px;
+                width: 16px;
+                height: 16px;
+                background: var(--glass-bg);
+                transform: rotate(45deg);
+                border-left: 1px solid rgba(255, 255, 255, 0.3);
+                border-top: 1px solid rgba(255, 255, 255, 0.3);
+            }
+
+            #menuTitle { margin: 0 0 10px 0; font-size: 1.1rem; color: #1e293b; border-bottom: 2px solid var(--accent); display: inline-block; }
+            #menuDesc { margin: 0; font-size: 0.9rem; color: #475569; line-height: 1.5; }
+            }
     </style>
 </head>
 <body data-bs-spy="scroll" data-bs-target=".navbar" data-bs-offset="80" class="<?= (isset($_COOKIE['theme']) && $_COOKIE['theme'] == 'dark') ? 'dark-theme' : '' ?>">
 <?php include 'assets/user_navbar.php'; ?>
 
-<!-- PRELOADER -->
 <div id="zen-preloader">
     <div class="zen-leaf"></div>
     <p>AB MASSZÁZS</p>
 </div>
-<!-- HERO SZEKCIÓ -->
 <header class="hero-zen reveal">
     <div class="hero-content text-center">
         <h1 class="display-4 mb-3">ÜDVÖZÖLJÜK A CSENDBEN</h1>
@@ -611,7 +638,6 @@ $services = $stmt->fetchAll();
     </div>
 </header>
 
-<!-- FILOZÓFIA SZEKCIÓ -->
 <section id="philosophy" class="bg-light-zen">
     <div class="container">
         <div class="section-header reveal">
@@ -620,15 +646,14 @@ $services = $stmt->fetchAll();
             <p class="section-subtitle">A csend és a harmónia élménye</p>
         </div>
         <div class="row align-items-center g-5">
-            <div class="col-lg-6 reveal">
-                <img src="Text" alt="AB Masszázs" class="img-fluid" style="border: 2px solid var(--j-border);">
+            <div class="col-lg-12 reveal">
             </div>
-            <div class="col-lg-6 reveal">
-                <h3 class="brand mb-4" style="font-size: 2rem;">Harmónia a testben és a lélekben</h3>
-                <p style="color: var(--j-text); line-height: 2; margin-bottom: 1.5rem; font-size: 1.05rem;">
+            <div class="col-lg-12 reveal">
+                <h3 class="brand mb-4" style="font-size: 2rem; text-align: center;">Harmónia a testben és a lélekben</h3>
+                <p style="color: var(--j-text); line-height: 2; margin-bottom: 1.5rem; font-size: 1.05rem; text-align: center;">
                     Az AB Masszázs a japandi filozófia szellemében működik. A japán minimalizmust és a skandináv meghitségét ötvözzük, hogy Önnek a lehető legjobb relaxációs élményt nyújtsuk.
                 </p>
-                <p style="color: var(--j-muted); line-height: 2; margin-bottom: 2rem; font-size: 1.05rem;">
+                <p style="color: var(--j-muted); line-height: 2; margin-bottom: 2rem; font-size: 1.05rem; text-align: center;">
                     Minden kezelésnél a tudatos légzésre, a teljes testtudat elvére és a belső béke megtalálására törekszünk. Megjelenítjük az egyensúlyt, tisztaságot és szépséget.
                 </p>
                 
@@ -653,7 +678,6 @@ $services = $stmt->fetchAll();
     </div>
 </section>
 
-<!-- SZOLGÁLTATÁSOK SZEKCIÓ -->
 <section id="services" class="bg-accent-soft">
     <div class="container">
         <div class="section-header reveal">
@@ -679,30 +703,34 @@ $services = $stmt->fetchAll();
     </div>
 </section>
 
-<!-- MESTEREINK SZEKCIÓ -->
 <section id="masters">
     <div class="container">
         <div class="section-header reveal">
             <span class="info-label">SZAKÉRTELEM</span>
-            <h2>Mestereink</h2>
-            <p class="section-subtitle">Tapasztalt és empátiával teli masszőreink</p>
+            <h2>Masszőr Terapeuta</h2>
+            <p class="section-subtitle">Tapasztalt és empátiával teli masszőr</p>
         </div>
         <div class="row g-5 justify-content-center">
             <div class="col-md-5 reveal">
                 <div class="master-card">
-                    <div class="master-img" style="background-image: url('text');"></div>
+                    <div class="master-img" style="background-image: url('assets/ab_bg.jpeg');"></div>
                     <h5 class="brand">Apostol Brigitta</h5>
-                    <p class="small text-muted mb-2">Szakértő</p>
-                    <div>
-                        <span class="master-badge">Yumeiho</span>
-                        <span class="master-badge">Svédmasszázs</span>
-                    </div>
-                </div>
-            </div>
-        </div>
+                    <p class="small text-muted mb-2">Terapeuta</p>
+                    <div class="badge-container">
+    <span class="master-badge" onclick="toggleMenu(this, 'yumeiho')">Yumeiho</span>
+    <span class="master-badge" onclick="toggleMenu(this, 'sved')">Svédmasszázs</span>
+    <span class="master-badge" onclick="toggleMenu(this, 'talpreflexologia')">Talpreflexológia</span>
+</div>
+<br>
+<div id="fancyMenu" class="fancy-pop-menu">
+    <div class="menu-header">
+        <h3 id="menuTitle"></h3>
     </div>
+    <div class="menu-content">
+        <p id="menuDesc"></p>
+    </div>
+    <div class="menu-arrow"></div> </div>
 </section>
-<!-- AJÁNDÉKKÁRTYA SZEKCIÓ -->
 <section id="vouchers">
     <div class="container">
         <div class="section-header reveal">
@@ -770,7 +798,6 @@ $services = $stmt->fetchAll();
         </div>
     </div>
 </section>
-<!-- FOGLALÁS SZEKCIÓ -->
 <section id="booking" class="bg-light-zen">
     <div class="container">
         <div class="section-header reveal">
@@ -827,7 +854,6 @@ $services = $stmt->fetchAll();
         </div>
     </div>
 </section>
-<!-- VÉLEMÉNYEK SZEKCIÓ -->
 <section id="reviews" class="bg-light-zen">
     <div class="container">
         <div class="section-header reveal">
@@ -876,22 +902,16 @@ $services = $stmt->fetchAll();
     </div>
 </section>
 
-<!-- KAPCSOLAT SZEKCIÓ -->
 <section id="contact" style="padding: 0;">
     <div class="container-fluid">
         <div class="row g-0">
-            <!-- TÉRKÉP - KITÖLTI A KONTÉNERT -->
             <div class="col-lg-7 p-0" style="height: 650px; overflow: hidden;">
                 <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2708.263382257527!2d19.322708676798364!3d47.250552812495776!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x4741918afaf15229%3A0xa1f0e0ae13433cbc!2zSW7DoXJjcywgTcOhanVzIDEuIHUuIDEyLCAyMzY1!5e0!3m2!1shu!2shu!4v1770212748654!5m2!1shu!2shu" width="100%" height="100%" style="border:0; filter: grayscale(100%) contrast(1.1);" allowfullscreen="" loading="lazy"></iframe>
             </div>
-
-            <!-- ELÉRHETŐSÉGEK -->
             <div class="col-lg-5 p-5" style="background: var(--j-card); display: flex; flex-direction: column; justify-content: center; height: 650px;">
                 <div class="reveal">
                     <span class="info-label mb-3 d-block">ELÉRHETŐSÉG</span>
                     <h2 class="brand mb-5" style="font-size: 2rem;">Látogasson el hozzánk</h2>
-                    
-                    <!-- CÍM -->
                     <div class="contact-info-item">
                         <div class="contact-icon-box">
                             <i class="fa-solid fa-location-dot"></i>
@@ -901,19 +921,15 @@ $services = $stmt->fetchAll();
                             <p>2365 Inárcs<br>Május 1 utca 12.</p>
                         </div>
                     </div>
-
-                    <!-- TELEFON -->
                     <div class="contact-info-item">
                         <div class="contact-icon-box">
                             <i class="fa-solid fa-phone"></i>
                         </div>
                         <div>
                             <h5>Telefonszám</h5>
-                            <p><a href="tel:+36301234567" class="phone-link">+36 30 123 4567</a></p>
+                            <p><a href="tel:+36301234567" class="phone-link">+36 30 635 7807</a></p>
                         </div>
                     </div>
-
-                    <!-- EMAIL -->
                     <div class="contact-info-item">
                         <div class="contact-icon-box">
                             <i class="fa-solid fa-envelope"></i>
@@ -923,8 +939,6 @@ $services = $stmt->fetchAll();
                             <p><a href="mailto:abmasszazsinfo@gmail.com" class="email-link">abmasszazsinfo@gmail.com</a></p>
                         </div>
                     </div>
-
-                    <!-- NYITVATARTÁS -->
                     <div>
                         <h5 class="brand mb-3">Nyitvatartás</h5>
                         <div class="d-flex justify-content-between align-items-center mb-2">
@@ -938,8 +952,6 @@ $services = $stmt->fetchAll();
         </div>
     </div>
 </section>
-
-<!-- KAPCSOLAT & VÉLEMÉNY SZEKCIÓ - TISZTA FORMA -->
 <section id="contact-form" class="bg-light-zen" style="padding: 80px 0;">
     <div class="container">
         <div class="row justify-content-center">
@@ -948,8 +960,6 @@ $services = $stmt->fetchAll();
                     <span class="info-label">KAPCSOLAT</span>
                     <h2>Írjon nekünk</h2>
                 </div>
-
-                <!-- TABULÁTOROK -->
                 <div class="mb-5">
                     <div class="row g-3 text-center justify-content-center">
                         <div class="col-auto">
@@ -964,8 +974,6 @@ $services = $stmt->fetchAll();
                         </div>
                     </div>
                 </div>
-
-                <!-- KAPCSOLAT FORM -->
                 <div id="tab-contact-content" class="tab-form-content reveal">
                     <form id="contactForm" class="row g-4">
                         <div class="col-md-6">
@@ -989,8 +997,6 @@ $services = $stmt->fetchAll();
                         </div>
                     </form>
                 </div>
-
-                <!-- VÉLEMÉNY FORM -->
                 <div id="tab-review-content" class="tab-form-content reveal" style="display: none;">
                     <form id="reviewForm" class="row g-4">
                         <div class="col-12">
@@ -1039,7 +1045,6 @@ $services = $stmt->fetchAll();
         </div>
     </div>
 </section>
-<!-- TOAST ÜZENETEK -->
 <div class="toast-container position-fixed bottom-0 end-0 p-4" style="z-index: 9999;">
     <div id="statusToast" class="toast border-0 rounded-0" role="alert" aria-live="assertive" aria-atomic="true">
         <div class="toast-body p-3">
@@ -1054,8 +1059,6 @@ $services = $stmt->fetchAll();
         </div>
     </div>
 </div>
-
-<!-- SCRIPTS -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 <script src="https://npmcdn.com/flatpickr/dist/l10n/hu.js"></script>
@@ -1086,7 +1089,6 @@ function showApiToast(title, message, isError = false) {
 
 document.addEventListener('DOMContentLoaded', () => {
 
-    // --- IDŐPONTFOGLALÁS ---
     const bookingForm = document.getElementById('apiBookingForm');
     if (bookingForm) {
         bookingForm.addEventListener('submit', function(e) {
@@ -1124,8 +1126,7 @@ document.addEventListener('DOMContentLoaded', () => {
             .catch(err => showApiToast("Hiba", err.message, true));
         });
     }
-
-    // --- KAPCSOLATI ÜZENET ---
+});
     const contactForm = document.getElementById('contactForm');
     if (contactForm) {
         contactForm.addEventListener('submit', function(e) {
@@ -1151,7 +1152,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // --- VÉLEMÉNYEK ---
     const reviewForm = document.getElementById('reviewForm');
     if (reviewForm) {
         reviewForm.addEventListener('submit', function(e) {
@@ -1189,7 +1189,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // --- VOUCHER VÁSÁRLÁS ---
     const voucherForm = document.getElementById('voucherForm');
     if (voucherForm) {
         voucherForm.addEventListener('submit', function(e) {
@@ -1219,7 +1218,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // --- NAPTÁR ---
     if (document.getElementById('booking_date')) {
         flatpickr("#booking_date", {
             locale: "hu", 
@@ -1243,24 +1241,19 @@ document.addEventListener('DOMContentLoaded', () => {
                     });
             }
         });
-    }
-// --- TAB SWITCHING ---
+
 document.querySelectorAll('.tab-btn').forEach(btn => {
     btn.addEventListener('click', function() {
         const tabName = this.getAttribute('data-tab');
         
-        // Remove active class from all buttons
         document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
         
-        // Hide all content
         document.querySelectorAll('.tab-form-content').forEach(content => {
             content.style.display = 'none';
         });
         
-        // Add active class to clicked button
         this.classList.add('active');
         
-        // Show selected content
         document.getElementById(`tab-${tabName}-content`).style.display = 'block';
     });
 });
@@ -1300,7 +1293,6 @@ document.querySelectorAll('.tab-btn').forEach(btn => {
     });
 });
 
-    // --- VOUCHER PREVIEW UPDATE ---
     const vAmountSelect = document.getElementById('v_amount');
     const vNameInput = document.getElementById('v_name');
     if (vAmountSelect) {
@@ -1315,8 +1307,6 @@ document.querySelectorAll('.tab-btn').forEach(btn => {
             document.getElementById('p-name').innerText = name.toUpperCase();
         });
     }
-
-    // --- GÖRGETÉSI ANIMÁCIÓK ---
     const observer = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
             if (entry.isIntersecting) entry.target.classList.add('visible');
@@ -1324,9 +1314,9 @@ document.querySelectorAll('.tab-btn').forEach(btn => {
     }, { threshold: 0.1 });
 
     document.querySelectorAll('.reveal').forEach(r => observer.observe(r));
-});
+};
 
-// --- PRELOADER ---
+
 window.addEventListener('load', () => {
     const preloader = document.getElementById('zen-preloader');
     if (preloader) {
@@ -1336,8 +1326,6 @@ window.addEventListener('load', () => {
         }, 600);
     }
 });
-
-// --- TÉMA VÁLTÁSA ---
 function toggleTheme() {
     const isDark = document.body.classList.toggle('dark-theme');
     localStorage.setItem('theme', isDark ? 'dark' : 'light');
@@ -1348,6 +1336,54 @@ function toggleTheme() {
         document.body.classList.add('dark-theme');
     }
 })();
+const menuData = {
+    yumeiho: { 
+        title: "Yumeiho Terápia", 
+        desc: "A Yumeiho kínai és japán gyógymódot egyesítő masszázsterápia. A több évtizedes tapasztalat azt mutatja, hogy kiváló eredménnyel kezelhetők vele az ízületi és gerincbetegségek, valamint hatékonyan csökkenthetők a keresztcsont-fájdalmak." 
+    },
+    sved: { 
+        title: "Svédmasszázs", 
+        desc: "A 19. században kifejlesztett klasszikus technika. Célja az izomzat vérellátásának fokozása és kondicionálása. Javítja az anyagcserét, a nyirokkeringést, optimalizálja a vérnyomást és segíti a teljes testi-lelki ellazulást." 
+    },
+    talpreflexologia: { 
+        title: "Talpreflexológia", 
+        desc: "A talpon található reflexpontok célzott masszírozása, amely ingerületet küld a megfelelő szervekhez. Segíti a test öngyógyító folyamatait és az általános energetikai harmonizálást." 
+    }
+};
+
+
+let currentTarget = null;
+
+function toggleMenu(element, key) {
+    const menu = document.getElementById('fancyMenu');
+    
+    if (currentTarget === element && menu.classList.contains('active')) {
+        closeMenu();
+        return;
+    }
+
+    document.getElementById('menuTitle').innerText = menuData[key].title;
+    document.getElementById('menuDesc').innerText = menuData[key].desc;
+
+    const rect = element.getBoundingClientRect();
+    menu.style.top = (rect.bottom + 15) + "px"; 
+    menu.style.left = rect.left + "px";
+
+    menu.classList.add('active');
+    currentTarget = element;
+}
+
+function closeMenu() {
+    const menu = document.getElementById('fancyMenu');
+    menu.classList.remove('active');
+    currentTarget = null;
+}
+
+document.addEventListener('click', (e) => {
+    if (!e.target.classList.contains('master-badge') && !document.getElementById('fancyMenu').contains(e.target)) {
+        closeMenu();
+    }
+});
 </script>
 
 <?php include '../config/footer.php'; ?>

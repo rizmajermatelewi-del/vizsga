@@ -1,4 +1,3 @@
-/* --- JAPANDI GLOBÁLIS RENDSZER --- */
 :root {
     --j-bg: #f4f1ee;
     --j-dark: #2d2a26;
@@ -9,7 +8,6 @@
     --j-text-muted: #8c8884;
     --nav-bg: rgba(255, 255, 255, 0.95);
 }
-
 body.dark-mode {
     --j-bg: #121211;
     --j-dark: #f4f1ee;
@@ -20,9 +18,7 @@ body.dark-mode {
     --j-text-muted: #a09b97;
     --nav-bg: rgba(28, 27, 26, 0.98);
 }
-
 html { overflow-y: scroll; }
-
 body { 
     background: var(--j-bg); 
     color: var(--j-dark); 
@@ -31,18 +27,12 @@ body {
     min-height: 100vh;
     margin: 0;
 }
-
 h1, h2, h3, .brand { font-family: 'Shippori Mincho', serif; font-weight: 700; }
-
-
 .header-spacer { height: 80px; width: 100%; }
-
-/* --- KERESŐ SÁV (KÉP SZERINTI PONTOSSÁGGAL) --- */
 .fancy-search-wrapper { 
     margin: 50px auto; 
     max-width: 700px; 
 }
-
 .fancy-search-container {
     background: var(--j-white);
     padding: 14px 30px;
@@ -53,20 +43,17 @@ h1, h2, h3, .brand { font-family: 'Shippori Mincho', serif; font-weight: 700; }
     align-items: center;
     transition: all 0.5s cubic-bezier(0.165, 0.84, 0.44, 1);
 }
-
 .fancy-search-container:focus-within {
     transform: translateY(-3px);
     border-color: var(--j-accent);
     box-shadow: 0 15px 45px rgba(0,0,0,0.08);
 }
-
 .search-icon-fancy {
     color: var(--j-dark);
     font-size: 1.1rem;
     margin-right: 18px;
     opacity: 0.9;
 }
-
 .search-input-fancy {
     border: none !important;
     background: transparent !important;
@@ -76,8 +63,6 @@ h1, h2, h3, .brand { font-family: 'Shippori Mincho', serif; font-weight: 700; }
     outline: none !important;
     font-weight: 300;
 }
-
-/* --- POP-UP (MODAL) MODERNEBB JAPANDI --- */
 .modal-content {
     background-color: var(--j-bg);
     border: 1px solid var(--j-border);
@@ -85,7 +70,6 @@ h1, h2, h3, .brand { font-family: 'Shippori Mincho', serif; font-weight: 700; }
     padding: 25px;
     box-shadow: 0 30px 100px rgba(0,0,0,0.2);
 }
-
 .modal-backdrop.show { opacity: 0.4; backdrop-filter: blur(5px); }
 
 .form-control, .form-select {
@@ -98,14 +82,14 @@ h1, h2, h3, .brand { font-family: 'Shippori Mincho', serif; font-weight: 700; }
 
 .form-control:focus { border-color: var(--j-accent); box-shadow: none; }
 
-/* --- NAVIGÁCIÓS LINKEK --- */
+
 .nav-link, .nav-item-link {
-    font-size: 0.85rem !important; /* Emelt méret az olvashatóságért */
-    font-weight: 500 !important; /* Vékonyabb, elegánsabb Japandi vonal */
+    font-size: 0.85rem !important;
+    font-weight: 500 !important;
     text-transform: uppercase;
     letter-spacing: 1.5px !important;
     padding: 0 15px !important;
-    line-height: 80px !important; /* Ez kényszeríti ki, hogy középen legyen függőlegesen */
+    line-height: 80px !important;
     color: var(--j-text-muted) !important;
     display: inline-block;
     position: relative;
@@ -115,7 +99,7 @@ h1, h2, h3, .brand { font-family: 'Shippori Mincho', serif; font-weight: 700; }
 .nav-link.active::after {
     content: '';
     position: absolute;
-    bottom: 20px; /* Picit feljebb hozzuk az alsó vonalat */
+    bottom: 20px;
     left: 50%;
     width: 20px;
     height: 2px;
@@ -123,7 +107,7 @@ h1, h2, h3, .brand { font-family: 'Shippori Mincho', serif; font-weight: 700; }
     transform: translateX(-50%);
 }
 
-/* --- KÁRTYÁK ÉS GOMBOK --- */
+
 .j-card, .service-card {
     background: var(--j-white); border: 1px solid var(--j-border);
     padding: 1.5rem; transition: 0.4s; cursor: pointer;
@@ -136,7 +120,7 @@ h1, h2, h3, .brand { font-family: 'Shippori Mincho', serif; font-weight: 700; }
     font-size: 0.75rem; letter-spacing: 2px; transition: 0.3s;
 }
 .btn-zen:hover { background: var(--j-accent); color: white; transform: translateY(-3px); }
-/* Logó és menüpontok közös alapja */
+
 .admin-logo, .nav-link {
     font-family: 'Shippori Mincho', serif;
     font-weight: 700;

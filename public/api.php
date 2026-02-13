@@ -2,13 +2,12 @@
 session_start();
 require_once "../config/database.php";
 
-// Hibakeresés konfigurálása (JSON kimenetnél fontos a display_errors = 0)
+
 error_reporting(E_ALL);
 ini_set('display_errors', 0); 
 ob_start();
 
-// PHPMailer betöltése - Ellenőrizd az útvonalat a szervereden!
-// PHPMailer betöltése a gyökérben lévő vendor mappából
+
 require __DIR__ . '/../vendor/PHPMailer-master/src/Exception.php';
 require __DIR__ . '/../vendor/PHPMailer-master/src/PHPMailer.php';
 require __DIR__ . '/../vendor/PHPMailer-master/src/SMTP.php';
@@ -16,9 +15,7 @@ require __DIR__ . '/../vendor/PHPMailer-master/src/SMTP.php';
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
 
-/**
- * Univerzális válaszküldő függvény
- */
+
 function sendResponse($data, $code = 200) {
     ob_clean();
     http_response_code($code);
@@ -27,9 +24,7 @@ function sendResponse($data, $code = 200) {
     exit;
 }
 
-/**
- * E-mail küldő segédfüggvény
- */
+
 function sendZEMail($to, $subject, $body) {
     $mail = new PHPMailer(true);
     try {
@@ -47,7 +42,7 @@ function sendZEMail($to, $subject, $body) {
         $mail->isHTML(true);
         $mail->Subject = $subject;
 
-        // Japandi Design: Világos bézs háttér, sötét szürke szöveg, aranybarna hangsúly
+
         $mail->Body = "
         <div style='background-color: #fdfcf9; padding: 40px; font-family: \"Segoe UI\", Tahoma, Geneva, Verdana, sans-serif; color: #444;'>
             <div style='max-width: 600px; margin: 0 auto; background-color: #ffffff; border: 1px solid #e8e4de; border-radius: 2px; box-shadow: 0 2px 10px rgba(0,0,0,0.02);'>
@@ -110,15 +105,15 @@ function handleRegistration($method, $pdo) {
     if ($method === 'POST') {
         $data = json_decode(file_get_contents('php://input'), true);
         
-        // Jelszó titkosítása
+
         $hashed = password_hash($data['password'], PASSWORD_DEFAULT);
         
-        // Mentés az adatbázisba
+
         $ins = $pdo->prepare("INSERT INTO users (username, email, tel, password, role) VALUES (?, ?, ?, ?, 'user')");
         
         if($ins->execute([$data['username'], $data['email'], $data['tel'], $hashed])) {
             
-            // --- ITT KÜLDJÜK AZ EMAILT ---
+
             $subject = "Üdvözöljük az AB MASSZÁZS világában!";
             $body = "
                 <p>Kedves <strong>{$data['username']}</strong>!</p>
@@ -131,7 +126,7 @@ function handleRegistration($method, $pdo) {
             ";
 
             sendZEMail($data['email'], $subject, $body);
-            // ------------------------------
+
 
             sendResponse(["success" => "Sikeres regisztráció! Üdvözlő e-mail elküldve."]);
         }
@@ -149,7 +144,7 @@ function handleVouchers($method, $pdo) {
 
         if($stmt->execute([$_SESSION['user_id'] ?? null, $code, $data['recipient'], $data['amount'], $expiry, $data['email'], $data['tel'] ?? null])) {
             
-            // --- Japandi Voucher Email ---
+
             $subject = "Az Ön ajándékutalványa - AB MASSZÁZS";
             $formattedAmount = number_format($data['amount'], 0, '', ' ') . " Ft";
             
@@ -178,7 +173,7 @@ function handleBookings($method, $pdo) {
             
             if($stmt->execute([$data['service_id'], $data['customer_name'], $data['email'], $data['tel'], $data['booking_date'], $data['booking_time']])) {
                 
-                // --- Japandi Foglalási Email ---
+
                 $subject = "Időpont visszaigazolva - AB MASSZÁZS";
                 $body = "
                     <h2 style='font-weight: normal; color: #1a1a1a;'>Várjuk szeretettel!</h2>
@@ -204,12 +199,12 @@ function handleMessages($method, $pdo) {
     if ($method === 'POST') {
         $data = json_decode(file_get_contents('php://input'), true);
         
-        // Mentés az adatbázisba (név, email, tel, üzenet)
+
         $stmt = $pdo->prepare("INSERT INTO messages (name, email, tel, message, created_at) VALUES (?, ?, ?, ?, NOW())");
         
         if($stmt->execute([$data['name'], $data['email'], $data['tel'], $data['message']])) {
             
-            // --- Japandi Kapcsolati Email ---
+
             $subject = "Köszönjük megkeresését - AB MASSZÁZS";
             $body = "
                 <p>Kedves <strong>{$data['name']}</strong>!</p>
@@ -230,15 +225,15 @@ function handleReviews($method, $pdo) {
     if ($method === 'POST') {
         $data = json_decode(file_get_contents('php://input'), true);
         
-        // Mentés az adatbázisba: user_name, service_name, rating, comment
+
         $stmt = $pdo->prepare("INSERT INTO reviews (user_name, service_name, rating, comment, created_at) VALUES (?, ?, ?, ?, NOW())");
         
         if($stmt->execute([$data['user_name'], $data['service_name'], $data['rating'], $data['comment']])) {
             
-            // --- Japandi Értékelés Köszönő Email ---
+
             $subject = "Köszönjük az értékelését! - AB MASSZÁZS";
             
-            // Csillagok vizuális megjelenítése (egyszerű szövegesen)
+
             $stars = str_repeat('★', $data['rating']) . str_repeat('☆', 5 - $data['rating']);
             
             $body = "
@@ -254,9 +249,7 @@ function handleReviews($method, $pdo) {
                 <p>Várjuk szeretettel legközelebb is!</p>
             ";
 
-            // Csak akkor küldünk e-mailt, ha van megadott e-mail cím a $data-ban
-            // Megjegyzés: Ha a frontend nem küld e-mailt a review-val, ezt a részt ki lehet hagyni,
-            // vagy lekérni az adatbázisból a user_name alapján.
+
             if(isset($data['email'])) {
                 sendZEMail($data['email'], $subject, $body);
             }
@@ -274,21 +267,20 @@ function handleUpdateProfile($method, $pdo) {
         $user_id = $_SESSION['user_id'];
         
         try {
-            // Profil adatok frissítése
+
             $stmt = $pdo->prepare("UPDATE users SET username = ?, email = ?, tel = ? WHERE id = ?");
             $stmt->execute([$data['username'], $data['email'], $data['tel'], $user_id]);
             
             $_SESSION['username'] = $data['username'];
             $passwordChanged = false;
 
-            // Ha jelszót is módosított
             if (!empty($data['password'])) {
                 $hashed = password_hash($data['password'], PASSWORD_DEFAULT);
                 $pdo->prepare("UPDATE users SET password = ? WHERE id = ?")->execute([$hashed, $user_id]);
                 $passwordChanged = true;
             }
 
-            // --- Japandi Profil Frissítés Email ---
+
             $subject = "Profilja megváltozott - AB MASSZÁZS";
             $body = "
                 <p>Kedves <strong>{$data['username']}</strong>!</p>

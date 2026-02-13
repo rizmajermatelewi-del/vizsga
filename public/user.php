@@ -2,19 +2,16 @@
 session_start();
 require_once "../config/database.php";
 
-// Bejelentkezés ellenőrzése
 if (!isset($_SESSION['user_id'])) { 
     header("Location: ./login.php?error=4"); 
     exit; 
 }
 $user_id = $_SESSION['user_id'];
 
-// --- 1. FELHASZNÁLÓI ADATOK LEKÉRÉSE ---
 $userStmt = $pdo->prepare("SELECT * FROM users WHERE id = ?");
 $userStmt->execute([$user_id]);
 $userData = $userStmt->fetch(PDO::FETCH_ASSOC);
 
-// --- 2. AJAX VOUCHER ELLENŐRZŐ ---
 if (isset($_GET['ajax_check_voucher'])) {
     header('Content-Type: application/json');
     $code = trim($_GET['code'] ?? '');
@@ -37,7 +34,6 @@ if (isset($_GET['ajax_check_voucher'])) {
     exit;
 }
 
-// --- 3. LEMONDÁSI LOGIKA ---
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_booking'])) {
     $b_id = $_POST['booking_id'];
     $checkStmt = $pdo->prepare("SELECT booking_date, booking_time FROM bookings WHERE id = ? AND (customer_name = ? OR phone = ?)");
@@ -57,12 +53,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_booking'])) {
     exit;
 }
 
-// --- 4. PROFIL MÓDOSÍTÁSA ---
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_profile'])) {
     $old_username = $userData['username']; 
     $new_username = trim($_POST['username']);
     $email = trim($_POST['email']);
-    $tel = preg_replace('/[^\d+]/', '', $_POST['tel']); // Mentéskor kiszűrjük a szóközöket
+    $tel = preg_replace('/[^\d+]/', '', $_POST['tel']); 
     $new_pass = trim($_POST['new_password']);
     $confirm_pass = trim($_POST['confirm_password']);
 
@@ -89,7 +84,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_profile'])) {
     }
 }
 
-// --- 5. AKTÍV FOGLALÁSOK LEKÉRÉSE ---
 $today = date('Y-m-d');
 $upStmt = $pdo->prepare("SELECT b.*, s.name as s_name FROM bookings b 
                          JOIN services s ON b.service_id = s.id 
@@ -98,7 +92,6 @@ $upStmt = $pdo->prepare("SELECT b.*, s.name as s_name FROM bookings b
 $upStmt->execute([$userData['username'], $userData['tel'], $today]);
 $upcoming = $upStmt->fetchAll(PDO::FETCH_ASSOC);
 
-// --- SZÉP TELEFONSZÁM FORMÁZÓ SEGÉDFÜGGVÉNY ---
 function formatPhoneNumber($tel) {
     $tel = preg_replace('/[^\d+]/', '', $tel);
     if (strlen($tel) >= 11 && str_starts_with($tel, '+36')) {
@@ -120,34 +113,26 @@ function formatPhoneNumber($tel) {
     <style>
         :root { --j-bg: #f4f1ec; --j-card: #ffffff; --j-gold: #b8924a; --j-dark: #1a1a1a; --j-border: rgba(26,26,26,0.08); }
         body { background: var(--j-bg); font-family: 'Plus Jakarta Sans', sans-serif; color: var(--j-dark); overflow-x: hidden; }
-        
         .profile-hero { padding: 80px 0 40px; }
         .zen-card { background: var(--j-card); border: none; padding: 35px; box-shadow: 10px 10px 40px rgba(0,0,0,0.02); position: relative; }
         .section-label { font-size: 0.65rem; text-transform: uppercase; letter-spacing: 3px; color: var(--j-gold); margin-bottom: 20px; display: block; }
-        
         .ritual-upcoming { border-left: 3px solid var(--j-gold); background: #fffcf8; padding: 15px; margin-bottom: 15px; }
-        
         .voucher-group { display: flex; align-items: stretch; height: 48px; }
         .voucher-group .form-control { border-radius: 0; border: 1px solid var(--j-border); background: transparent; height: 100%; margin: 0; }
         .voucher-group .btn-zen { border-radius: 0; height: 100%; padding: 0 25px; display: flex; align-items: center; justify-content: center; min-width: 70px; margin: 0; }
-
         .info-footer { margin-top: auto; padding-top: 20px; border-top: 1px solid var(--j-border); display: flex; align-items: flex-start; gap: 12px; }
         .info-footer i { color: var(--j-gold); font-size: 0.85rem; margin-top: 3px; }
         .info-footer p { font-size: 0.75rem; line-height: 1.6; color: #888; margin: 0; }
         .info-footer b { color: #666; text-transform: uppercase; letter-spacing: 1px; }
-
         .btn-zen { background: var(--j-dark); color: white; border: none; text-transform: uppercase; font-size: 0.7rem; letter-spacing: 2px; transition: 0.4s; font-weight: 600; cursor: pointer; }
         .btn-zen:hover { background: var(--j-gold); color: white; }
-        
         .form-control:focus { box-shadow: none; border-color: var(--j-gold); }
         .pass-input { background-color: #f0f7ff !important; padding-right: 45px !important; }
         .toggle-eye-icon { position: absolute; right: 15px; top: 50%; transform: translateY(-50%); cursor: pointer; color: var(--j-gold); z-index: 10; opacity: 0.7; }
-
         .zen-field-group { position: relative; border-bottom: 1px solid var(--j-border); padding: 5px 0; transition: all 0.3s ease; }
         .zen-field-group:focus-within { border-bottom-color: var(--j-gold); }
         .zen-input-minimal { width: 100%; border: none !important; background: transparent !important; padding: 8px 0 !important; font-family: 'Plus Jakarta Sans', sans-serif; outline: none !important; box-shadow: none !important; font-size: 1rem; color: var(--j-dark); }
         .zen-icon-inline { font-size: 0.85rem; color: var(--j-gold); margin-right: 12px; opacity: 0.7; }
-
         .shake { animation: shake 0.4s cubic-bezier(.36,.07,.19,.97) both; }
         @keyframes shake { 10%, 90% { transform: translate3d(-1px, 0, 0); } 20%, 80% { transform: translate3d(2px, 0, 0); } 30%, 50%, 70% { transform: translate3d(-4px, 0, 0); } 40%, 60% { transform: translate3d(4px, 0, 0); } }
         #voucher-card { display: none; background: #eaddca; color: var(--j-dark); padding: 25px; margin-top: 20px; }
@@ -200,7 +185,15 @@ function formatPhoneNumber($tel) {
 
                 <div class="info-footer">
                     <i class="fa-solid fa-circle-info"></i>
-                    <p><b>Lemondás:</b> Időpontot lemondani legkésőbb 24 órával a kezdés előtt tud. Ezen belül kérjük, telefonon keressen minket.</p>
+                    <p><b>Lemondás:</b> A Te életedben is bekövetkezhet olyan váratlan esemény, ami a kezelés
+                    lemondására kényszerít.
+                    Ezt kérlek jelezd minél előbb!
+                    Amennyiben a kezelés előtt 48 órán belül mondod le, akkor a következő
+                    alkalommal 50%-os felárat számolok fel.
+                    Ha a kezelés előtt 24 órán belül mondod le vagy le sem mondod, akkor a
+                    következő alkalommal a teljes költség felszámolásra kerül.
+                    Ha fertőző beteg vagy, ne gyere el hozzám! Illetve, ha ez a kezelés alatt derül ki,
+                    az bármikor megszakítható és a teljes összeget ki kell fizetni!</p>
                 </div>
             </div>
         </div>
@@ -326,7 +319,6 @@ function formatPhoneNumber($tel) {
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-// 1. SEGÉDFÜGGVÉNY AZ API HÍVÁSOKHOZ
 async function apiCall(endpoint, data) {
     try {
         const response = await fetch(`api.php?request=${endpoint}`, {
@@ -346,7 +338,6 @@ async function apiCall(endpoint, data) {
     }
 }
 
-// 2. ENTER BILLENTYŰ KEZELÉSE
 function handleEnter(event) {
     if (event.key === "Enter") {
         event.preventDefault();
@@ -354,7 +345,6 @@ function handleEnter(event) {
     }
 }
 
-// 3. JELSZÓ SZEM IKONOK
 document.querySelectorAll('.toggle-eye-icon').forEach(eye => {
     eye.addEventListener('click', function() {
         const input = document.getElementById(this.getAttribute('data-target'));
@@ -368,7 +358,6 @@ document.querySelectorAll('.toggle-eye-icon').forEach(eye => {
     });
 });
 
-// 4. LEMONDÁS MEGERŐSÍTÉSE
 function confirmCancel(id, name, date) {
     document.getElementById('cancel_booking_id').value = id;
     document.getElementById('cancelTargetName').innerText = name;
@@ -377,7 +366,6 @@ function confirmCancel(id, name, date) {
     modal.show();
 }
 
-// 5. VOUCHER ELLENŐRZÉS (API ALAPON)
 function checkVoucher() {
     const code = document.getElementById('v_code').value;
     const input = document.getElementById('v_code');
@@ -385,7 +373,6 @@ function checkVoucher() {
 
     if (code.length < 5) return;
 
-    // Itt az api.php-t hívjuk meg
     fetch(`api.php?request=vouchers_check&code=${code}`)
         .then(r => r.json())
         .then(data => {
@@ -403,7 +390,6 @@ function checkVoucher() {
         });
 }
 
-// 6. TELEFONSZÁM FORMÁZÓ (ÉLŐBEN)
 const editTel = document.getElementById('edit_tel');
 if(editTel) {
     editTel.addEventListener('input', function(e) {
@@ -420,7 +406,6 @@ if(editTel) {
     });
 }
 
-// 7. PROFIL FRISSÍTÉSE (JAPANDI AJAX MÓDSZER)
 const profileForm = document.getElementById('profileEditForm');
 if (profileForm) {
     profileForm.addEventListener('submit', async function(e) {
@@ -444,9 +429,7 @@ if (profileForm) {
         const res = await apiCall('update_profile', data);
         if (res) {
             alert(res.success); 
-            // Frissítjük a nevet a kijelzőn azonnal
             document.querySelector('h1').innerText = data.username;
-            // Bezárjuk a modalt
             const modal = bootstrap.Modal.getInstance(document.getElementById('editModal'));
             if(modal) modal.hide();
         }

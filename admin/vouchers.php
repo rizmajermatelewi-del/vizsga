@@ -3,7 +3,7 @@ require_once "../config/database.php";
 session_start();
 if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') { header("Location: ../public/login.php?error=4"); exit; }
 
-// Csak a szükséges adatok lekérése
+
 $vouchers = $pdo->query("SELECT code, amount, status FROM vouchers ORDER BY created_at DESC")->fetchAll();
 ?>
 <!DOCTYPE html>
@@ -13,6 +13,7 @@ $vouchers = $pdo->query("SELECT code, amount, status FROM vouchers ORDER BY crea
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AB MASSZÁZS | Utalványok</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600&family=Shippori+Mincho:wght@500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="assets/admin_style.css">
 </head>
@@ -62,7 +63,7 @@ $vouchers = $pdo->query("SELECT code, amount, status FROM vouchers ORDER BY crea
 </div>
 
 <style>
-/* JAPANDI TÁBLÁZAT STÍLUS */
+
 .admin-table {
     border-collapse: separate;
     border-spacing: 0 10px;
@@ -92,7 +93,7 @@ $vouchers = $pdo->query("SELECT code, amount, status FROM vouchers ORDER BY crea
 .voucher-row td:first-child { border-left: 1px solid var(--j-border); }
 .voucher-row td:last-child { border-right: 1px solid var(--j-border); }
 
-/* KÓD MEGJELENÍTÉS */
+
 .code-box {
     font-family: 'Monaco', monospace;
     font-size: 0.9rem;
@@ -102,7 +103,7 @@ $vouchers = $pdo->query("SELECT code, amount, status FROM vouchers ORDER BY crea
     background: var(--j-soft);
 }
 
-/* MINIMALISTA ÁLLAPOT JELZŐK */
+
 .status-indicator {
     font-size: 0.65rem;
     font-weight: 700;
@@ -115,7 +116,7 @@ $vouchers = $pdo->query("SELECT code, amount, status FROM vouchers ORDER BY crea
 .status-indicator.active { color: #2f855a; }
 .status-indicator.used { color: #a0aec0; opacity: 0.6; }
 
-/* MOBIL NÉZET */
+
 @media (max-width: 768px) {
     .admin-table thead { display: none; }
     .voucher-row { display: block; margin-bottom: 15px; border: 1px solid var(--j-border) !important; }
@@ -135,7 +136,7 @@ $vouchers = $pdo->query("SELECT code, amount, status FROM vouchers ORDER BY crea
     }
 }
 .header-spacer {
-    height: 100px; /* Az eddigi 65px helyett */
+    height: 100px;
 }
    h1.brand {
     font-weight: 300;
@@ -143,6 +144,7 @@ $vouchers = $pdo->query("SELECT code, amount, status FROM vouchers ORDER BY crea
 }
 </style>
 
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

@@ -38,14 +38,12 @@
         </a>
     </li>
 <?php endif; ?>
-                <!-- Téma váltó gomb -->
                 <li class="nav-item ms-lg-3">
                     <button onclick="toggleTheme()" class="btn btn-link nav-link shadow-none p-0 theme-toggle" title="Téma váltása">
                         <i class="fas fa-circle-half-stroke"></i>
                     </button>
                 </li>
                 
-                <!-- Belépett felhasználó -->
                 <?php if(isset($_SESSION['user_id'])): ?>
                     <li class="nav-item ms-lg-3">
                         <a href="user.php" class="btn btn-dark btn-sm rounded-0 px-3 py-2 text-uppercase small">
@@ -57,7 +55,6 @@
                             <i class="fas fa-sign-out-alt"></i>
                         </a>
                     </li>
-                <!-- Nem belépett felhasználó -->
                 <?php else: ?>
                     <li class="nav-item ms-lg-2">
                         <a href="login.php" class="btn btn-dark btn-sm rounded-0 px-4">BELÉPÉS</a>
@@ -69,7 +66,6 @@
 </nav>
 
 <style>
-    /* === BRAND LOGO === */
     .brand-container {
         display: flex;
         flex-direction: column;
@@ -97,7 +93,6 @@
         text-transform: uppercase;
     }
 
-    /* === NAVBAR LINKS === */
     .nav-link {
         position: relative;
         font-weight: 600;
@@ -121,7 +116,6 @@
         width: 100%;
     }
 
-    /* === TÉMA VÁLTÓ GOMB === */
     .theme-toggle {
         font-size: 1.2rem !important;
         color: var(--j-text) !important;
@@ -141,7 +135,6 @@
         border-radius: 4px;
     }
 
-    /* === KIJELENTKEZÉS LINK === */
     .logout-link {
         font-size: 1rem !important;
         color: var(--j-text) !important;
@@ -160,13 +153,11 @@
         outline-offset: 2px;
     }
 
-    /* === Sötét mód === */
     body.dark-theme .navbar {
         background-color: var(--j-nav) !important;
         border-bottom-color: var(--j-border) !important;
     }
 
-    /* === Login Card === */
     .login-card {
         padding: 0;
     }

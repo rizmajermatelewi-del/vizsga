@@ -21,7 +21,7 @@ function sendWelcomeEmail($toEmail, $username) {
         $mail->Port       = 587;
         $mail->CharSet    = 'UTF-8';
 
-        $mail->setFrom('abmasszazsinfo@gmail.com', 'AB Masszázs'); // Itt javítva az egyezőség miatt
+        $mail->setFrom('abmasszazsinfo@gmail.com', 'AB Masszázs'); 
         $mail->addAddress($toEmail, $username);
 
         $mail->isHTML(true);
@@ -49,7 +49,7 @@ function sendWelcomeEmail($toEmail, $username) {
 $toast_msg = '';
 $toast_type = '';
 
-// --- 3. LOGIKA (POST) ---
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $action = $_POST['action'] ?? '';
     
@@ -67,7 +67,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $stmt = $pdo->prepare('INSERT INTO users (username, email, tel, password) VALUES (?, ?, ?, ?)');
             
             if ($stmt->execute([$username, $email, $tel, $hashed])) {
-                // FONTOS: Előbb küldjük az e-mailt, CSAK UTÁNA irányítunk át!
                 sendWelcomeEmail($email, $username);
                 header('Location: login.php?success=1');
                 exit;
@@ -75,7 +74,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         } catch (PDOException $e) { header('Location: login.php?error=3'); exit; }
     }
     
-    // Login rész marad változatlan...
 if ($action === 'login') {
     $username = trim($_POST['username']);
     $password = $_POST['password'];
@@ -85,12 +83,10 @@ if ($action === 'login') {
     $user = $stmt->fetch();
 
     if ($user && password_verify($password, $user['password'])) {
-        // Munkamenet adatok mentése
         $_SESSION['user_id'] = $user['id'];
         $_SESSION['user_name'] = $user['username'];
-        $_SESSION['role'] = $user['role']; // Érdemes elmenteni a szerepkört is!
+        $_SESSION['role'] = $user['role']; 
 
-        // Szerepkör alapú átirányítás
         if ($user['role'] === 'admin') {
             header('Location: ../admin/dashboard.php');
         } else {
@@ -104,7 +100,6 @@ if ($action === 'login') {
 }
 
 }
-// Üzenetek kezelése (az átirányítás után)
 if (isset($_GET['error'])) {
     $errors = ['1' => 'Hibás adatok!', '2' => 'A jelszavak nem egyeznek!', '3' => 'Foglalt név vagy email!', '5' => 'Hibás adatok!'];
     $toast_msg = $errors[$_GET['error']] ?? 'Hiba történt!';
@@ -125,34 +120,25 @@ if (isset($_GET['success'])) {
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     <style>
         :root { --j-bg: #ece0d1; --j-dark: #463f3a; --j-accent: #8a5a44; --j-border: #dbc1ac; }
-        body { background: var(--j-bg); color: var(--j-dark); font-family: 'Segoe UI', sans-serif; display: flex; align-items: center; justify-content: center; min-height: 100vh; margin: 0; overflow-x: hidden; }
-        
+        body { background: var(--j-bg); color: var(--j-dark); font-family: 'Segoe UI', sans-serif; display: flex; align-items: center; justify-content: center; min-height: 100vh; margin: 0; overflow-x: hidden; } 
         .login-card { background: #fff; padding: 2.5rem; border-radius: 20px; width: 100%; max-width: 400px; border: 1px solid var(--j-border); box-shadow: 0 10px 30px rgba(0,0,0,0.05); position: relative; }
-        
         .nav-tabs { border: none; margin-bottom: 2rem; gap: 20px; }
         .nav-link { color: var(--j-dark) !important; opacity: 0.4; border: none !important; text-transform: uppercase; font-size: 0.8rem; letter-spacing: 2px; font-weight: 600; padding: 0; padding-bottom: 5px; }
         .nav-link.active { opacity: 1; border-bottom: 2px solid var(--j-accent) !important; background: transparent !important; }
-        
-        /* Harmonizált Input és Szemecske */
         .input-group-zen { position: relative; border-bottom: 1px solid var(--j-border); margin-bottom: 1.5rem; display: flex; align-items: center; transition: 0.3s; }
         .input-group-zen:focus-within { border-color: var(--j-accent); background: rgba(138, 90, 68, 0.03); }
         .input-group-zen .form-control { border: none; background: transparent !important; padding: 12px 5px; flex: 1; color: var(--j-dark); }
         .input-group-zen .form-control:focus { box-shadow: none; }
         .toggle-pass { cursor: pointer; opacity: 0.5; padding: 0 10px; transition: 0.3s; font-size: 1.1rem; }
         .toggle-pass:hover { opacity: 1; color: var(--j-accent); }
-
         .btn-zen { background: var(--j-dark); color: #fff; border-radius: 50px; padding: 12px; width: 100%; border: none; margin-top: 1rem; text-transform: uppercase; letter-spacing: 1px; transition: 0.3s; }
         .btn-zen:hover { background: var(--j-accent); }
-        
         .progress-ab { height: 4px; background: #f0f0f0; margin-top: -1.2rem; margin-bottom: 1.5rem; border-radius: 10px; }
         #strengthBar { height: 100%; width: 0%; transition: 0.4s; border-radius: 10px; }
-        
-        /* Toast (Pop-up) Stílus */
         .toast-container { position: fixed; top: 20px; right: 20px; z-index: 10000; }
         .zen-toast { background: white; border-left: 4px solid var(--j-accent); min-width: 250px; padding: 15px; border-radius: 8px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); display: flex; align-items: center; justify-content: space-between; animation: slideIn 0.5s ease-out forwards; }
         .zen-toast.danger { border-left-color: #d9534f; }
         .zen-toast.success { border-left-color: #8e9775; }
-
         @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
         @keyframes slideOut { from { transform: translateX(0); opacity: 1; } to { transform: translateX(100%); opacity: 0; } }
     </style>
@@ -213,7 +199,6 @@ if (isset($_GET['success'])) {
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-    // 1. TOAST (POP-UP) FÜGGVÉNY
     function showToast(message, type) {
         const box = document.getElementById('toastBox');
         const toast = document.createElement('div');
@@ -227,12 +212,10 @@ if (isset($_GET['success'])) {
         }, 4000);
     }
 
-    // PHP ÜZENETEK MEGJELENÍTÉSE TOAST-KÉNT
     <?php if($toast_msg): ?>
         showToast("<?= $toast_msg ?>", "<?= $toast_type ?>");
     <?php endif; ?>
 
-    // 2. SZEMECSKE ÉS HÁTTÉRSZÍN FIX
     document.querySelectorAll('.toggle-pass').forEach(icon => {
         icon.addEventListener('click', function() {
             const target = document.getElementById(this.getAttribute('data-target'));
@@ -246,7 +229,6 @@ if (isset($_GET['success'])) {
         });
     });
 
-    // 3. TELEFON LIMIT (Max 13 karakter: +36 + 9 szám)
     document.getElementById('reg_tel').addEventListener('input', function(e) {
         let v = e.target.value.replace(/[^\d+]/g, '');
         if (!v.startsWith('+36')) v = '+36 ';
@@ -254,7 +236,6 @@ if (isset($_GET['success'])) {
         e.target.value = v;
     });
 
-    // 4. JELSZÓ ERŐSSÉG
     const pass = document.getElementById('pass');
     const bar = document.getElementById('strengthBar');
     pass.addEventListener('input', () => {
@@ -267,7 +248,6 @@ if (isset($_GET['success'])) {
         bar.style.backgroundColor = s < 50 ? '#d9b99b' : (s < 100 ? '#b5c99a' : '#8e9775');
     });
 
-    // 5. REGISZTRÁCIÓ VALIDÁLÁS (Azonnali pop-up hiba)
     document.getElementById('regForm').addEventListener('submit', function(e) {
         const confirm = document.getElementById('confirm');
         if (pass.value !== confirm.value) {
@@ -277,14 +257,11 @@ if (isset($_GET['success'])) {
         }
     });
 
-    // 6. TAB FIX - Módosítva
     window.onload = () => {
         const url = new URLSearchParams(window.location.search);
-        // Ha hiba van (és nem login hiba), akkor mutassa a regisztrációt
         if (url.has('error') && url.get('error') !== '1') {
             new bootstrap.Tab(document.querySelector('[data-bs-target="#tab-r"]')).show();
         } 
-        // Ha success van, hagyd az alapértelmezett Belépés (tab-l) fülön
     };
 </script>
 </body>

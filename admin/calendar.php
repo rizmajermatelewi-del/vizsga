@@ -23,15 +23,16 @@ $services_list = $pdo->query("SELECT * FROM services ORDER BY name ASC")->fetchA
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AB MASSZÁZS | Prémium Naptár</title>
+    <title>AB MASSZÁZS</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600&family=Shippori+Mincho:wght@500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="assets/admin_style.css">
     <style>
         :root { --j-bg: #f8f5f2; --j-card: #ffffff; --j-accent: #8e7d6f; --j-border: #e8e2db; }
         body.japandi-bg { background-color: var(--j-bg); }
 
-        /* KOMPAKT NAPTÁR MÉRETEZÉS */
+       
         .calendar-wrapper {
             max-width: 850px;
             margin:  auto;
@@ -90,7 +91,7 @@ $services_list = $pdo->query("SELECT * FROM services ORDER BY name ASC")->fetchA
             border-radius: 10px;
         }
 
-        /* SUCCESS ÜZENET */
+       
         #successToast {
             display: none;
             position: fixed;
@@ -106,7 +107,7 @@ $services_list = $pdo->query("SELECT * FROM services ORDER BY name ASC")->fetchA
             box-shadow: 0 5px 15px rgba(0,0,0,0.1);
         }
 
-        /* PANEL STÍLUS */
+       
         .offcanvas { border-left: none !important; box-shadow: -10px 0 30px rgba(0,0,0,0.05); }
         .booking-item-card {
             background: #fcfaf8;
@@ -209,7 +210,7 @@ $services_list = $pdo->query("SELECT * FROM services ORDER BY name ASC")->fetchA
     </div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https:
 <script>
 const bsOffcanvas = new bootstrap.Offcanvas(document.getElementById('bookingPanel'));
 
@@ -263,7 +264,7 @@ document.getElementById('ajaxForm').addEventListener('submit', function(e) {
     e.preventDefault();
     const toast = document.getElementById('successToast');
     
-    // calendar.php vége felé a fetch rész:
+    
 fetch('../public/api.php?request=bookings', {
     method: 'POST',
     headers: {
@@ -280,11 +281,11 @@ fetch('../public/api.php?request=bookings', {
     .then(r => r.json())
     .then(data => {
         if(data.status === 'success') {
-            bsOffcanvas.hide(); // Panel bezárása
-            toast.style.display = 'block'; // Zöld üzenet felvillan
+            bsOffcanvas.hide(); 
+            toast.style.display = 'block'; 
             
             setTimeout(() => {
-                location.reload(); // 1 mp múlva frissítés
+                location.reload(); 
             }, 1000);
         } else {
             alert(data.message);

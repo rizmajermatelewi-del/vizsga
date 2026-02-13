@@ -1,7 +1,7 @@
 <nav class="admin-nav navbar navbar-expand-lg">
     <div class="container-fluid px-4">
         <div class="nav-side-section justify-content-start">
-        <a href="dashboard.php" class="brand text-decoration-none me-3" style="font-size: 1.5rem; color: var(--j-dark);">
+        <a href="dashboard.php" class="brand text-decoration-none me-3" style="font-size: 1.5rem; color: var(--j-text);">
             <span style="font-weight: 300;">AB</span><span style="font-weight: 500;">MASSZÁZS</span>
         </a>
         <a href="../public/index.php" class="nav-icon-btn" title="Vissza a weboldalra">

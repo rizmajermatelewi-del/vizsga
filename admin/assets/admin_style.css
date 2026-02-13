@@ -7,6 +7,7 @@
     --j-soft: #faf9f8;
     --j-text-muted: #8c8884;
     --nav-bg: rgba(255, 255, 255, 0.95);
+    --j-text: #fff;
 }
 body.dark-mode {
     --j-bg: #121211;
@@ -17,6 +18,7 @@ body.dark-mode {
     --j-soft: #252321;
     --j-text-muted: #a09b97;
     --nav-bg: rgba(28, 27, 26, 0.98);
+    --j-text: #000;
 }
 html { overflow-y: scroll; }
 body { 
@@ -109,7 +111,7 @@ h1, h2, h3, .brand { font-family: 'Shippori Mincho', serif; font-weight: 700; }
 
 
 .j-card, .service-card {
-    background: var(--j-white); border: 1px solid var(--j-border);
+    background: transparent; border: 1px solid var(--j-border);
     padding: 1.5rem; transition: 0.4s; cursor: pointer;
 }
 .j-card:hover, .service-card:hover { transform: translateY(-8px); border-color: var(--j-accent); }
@@ -128,3 +130,14 @@ h1, h2, h3, .brand { font-family: 'Shippori Mincho', serif; font-weight: 700; }
     text-decoration: none;
     transition: color 0.3s ease;
 }
+
+.fw-bold {
+    color: var(--j-text) !important;
+}
+
+.text-muted {
+    color: var(--j-muted) !important;
+    --bs-text-opacity: 1 !important;
+}
+
+

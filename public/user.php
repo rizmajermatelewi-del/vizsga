@@ -227,19 +227,6 @@ function formatPhoneNumber($tel) {
                             </div>
                         <?php endforeach; else: echo "<p class='small opacity-50 italic'>Nincs aktív utalványa.</p>"; endif; ?>
                     </div>
-
-                    <div class="voucher-check-area pt-3 border-top">
-                        <label class="small text-muted mb-2">Ajándékutalvány regisztrálása</label>
-                        <div class="voucher-group">
-                            <input type="text" id="v_code" class="form-control" placeholder="Kód..." onkeypress="handleEnter(event)">
-                            <button class="btn-zen" onclick="checkVoucher()">OK</button>
-                        </div>
-                        <div id="voucher-card">
-                            <div class="small opacity-50" style="font-size: 0.6rem;">UTALVÁNY ÉRTÉKE</div>
-                            <div class="h3 my-2" id="v_amt" style="color: var(--j-gold); font-family: 'Shippori Mincho', serif;">0 Ft</div>
-                            <div class="small" id="v_exp">EXP: 0000-00-00</div>
-                        </div>
-                    </div>
                 </div>
             </div>
         </div>

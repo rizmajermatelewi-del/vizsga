@@ -1,6 +1,6 @@
 <?php
 $host = 'db'; 
-$db   = 'vizsgaremek'; 
+$db   = 'ab_masszazs_db'; 
 $user = 'root';
 $pass = 'root'; 
 

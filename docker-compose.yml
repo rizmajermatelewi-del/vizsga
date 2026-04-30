@@ -16,7 +16,7 @@ services:
     container_name: ab_masszazs_db
     restart: always
     environment:
-      MYSQL_DATABASE: vizsgaremek
+      MYSQL_DATABASE: ab_masszazs_db
       MYSQL_ROOT_PASSWORD: root
       MYSQL_USER: user
       MYSQL_PASSWORD: root
